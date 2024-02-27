@@ -1,0 +1,8 @@
+<p-panel header="Produtos Inativos" styleClass="mt-2">
+    @for (product of products; track $index) {
+    <app-product [product]="product" (isOperationSuccessful)="handleChildrenOperations($event)"></app-product>
+    } @empty {
+    <dir class="text-center">Não há produtos inativos!</dir>
+    }
+    <app-paginator [actualPage]="actualPage" [totalPages]="totalPages"></app-paginator>
+</p-panel>

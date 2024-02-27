@@ -1,0 +1,8 @@
+<p-toast position="top-right" (onClose)="messageHelper.hiddenMessage()">
+    <ng-template let-message pTemplate="message">
+        <div class="flex flex-column" style="flex: 1">
+            <h4 class="mb-2">{{ message.summary }}</h4>
+            <p class="text-justify">{{ message.detail }}</p>
+        </div>
+    </ng-template>
+</p-toast>

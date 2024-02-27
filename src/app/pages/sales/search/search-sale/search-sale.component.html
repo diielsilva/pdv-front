@@ -1,0 +1,19 @@
+<p-panel header="Pesquisar Vendas" styleClass="mt-2">
+    <div class="mb-2">
+        <form [formGroup]="searchForm">
+            <div class="flex justify-content-center">
+                <p-calendar formControlName="date" placeholder="Data da Venda" dateFormat="dd/mm/yy"></p-calendar>
+                <p-button label="Pesquisar" [disabled]="shouldDisableSearchSaleButton()"
+                    (onClick)="handleSearchSaleButton()" [rounded]="true" styleClass="ml-2"></p-button>
+            </div>
+        </form>
+    </div>
+    @if (sales.length > 0) {
+    @for (sale of sales; track $index) {
+    <app-sale [sale]="sale"></app-sale>
+    }
+
+    <p-button label="Relatório do Dia" (onClick)="profitReport()" [disabled]="shouldDisableProfitReportButton()"
+        [rounded]="true" styleClass="w-full"></p-button>
+    }
+</p-panel>

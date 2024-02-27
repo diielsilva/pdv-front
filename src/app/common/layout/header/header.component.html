@@ -1,0 +1,5 @@
+@if (authService.isUserAnAdmin() || authService.isUserAManager()) {
+<p-menubar [model]="superUserItems"></p-menubar>
+} @else if(authService.hasOnlineUser()) {
+<p-menubar [model]="commonUserItems"></p-menubar>
+}

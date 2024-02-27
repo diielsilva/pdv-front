@@ -1,0 +1,30 @@
+<p-panel header="Venda" styleClass="mb-2">
+    <div>Desconto: {{ sale.discount }} %</div>
+    <div>Forma de Pagamento: {{ sale.paymentMethod | paymentMethod }}</div>
+    <div>Total (Sem Desconto): {{ sale.total.toFixed(2) | currency }}</div>
+    <div>Data da Criação: {{ sale.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+    @if (isSaleInactive()) {
+    <div>Data da Remoção: {{ sale.deletedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+    } @else {
+    <ng-template pTemplate="footer">
+        <div class="w-full text-right">
+            <p-button icon="pi pi-eye" (onClick)="getSaleDetails()" [disabled]="shouldDisableButtons()"
+                styleClass="mr-2" [rounded]="true"></p-button>
+            <p-button icon="pi pi-file-pdf" (onClick)="generateSaleReport()" [disabled]="shouldDisableButtons()"
+                styleClass="mr-2" [rounded]="true"></p-button>
+        </div>
+        <!--<p-button label="Remover" (onClick)="deleteSale()" [disabled]="shouldDisableButtons()"></p-button>-->
+    </ng-template>
+    }
+</p-panel>
+
+<p-dialog [(visible)]="isDetailsModalVisible" [modal]="true" [draggable]="false" header="Detalhes da Venda">
+    <div>Vendedor: {{ saleDetails?.sellerName }}</div>
+    <p-divider></p-divider>
+    @for (item of saleDetails?.items; track $index) {
+    <div>Descrição: {{ item.productDescription }}</div>
+    <div>Quantidade: {{ item.amount }}</div>
+    <div>Preço: {{ item.price.toFixed(2) | currency }}</div>
+    <p-divider></p-divider>
+    }
+</p-dialog>

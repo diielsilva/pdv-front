@@ -1,0 +1,15 @@
+<p-panel header="Pesquisar Produto" styleClass="mt-2">
+    <div class="flex justify-content-center mb-2">
+        <form [formGroup]="searchForm">
+            <input pInputText formControlName="description" placeholder="Pesquisar..." />
+            <p-button label="Pesquisar" (onClick)="searchProducts()" [disabled]="shouldDisableSearchButton()" styleClass="ml-2" [rounded]="true"></p-button>
+        </form>
+    </div>
+
+    @for (product of products; track $index) {
+    <app-product [product]="product" (isOperationSuccessful)="handleChildOperation($event)"></app-product>
+    }
+
+    <app-paginator [actualPage]="actualPage" [totalPages]="totalPages"
+        (changePageEvent)="handlePageEvent($event)"></app-paginator>
+</p-panel>

@@ -1,0 +1,41 @@
+<p-panel header="Produto" styleClass="mb-2">
+    <div>Descrição: {{ product.description }}</div>
+    <div>Quantidade em Estoque: {{ product.amount }}</div>
+    <div>Preço: {{ product.price | currency }}</div>
+    <div>Data de Criação: {{ product.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+    @if (isProductInactive()) {
+    <div>Data de Remoção: {{ product.deletedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+    @if (shouldDisplayButtons()) {
+    <ng-template pTemplate="footer">
+        <div class="w-full text-right">
+            <p-button icon=" pi pi-replay" (onClick)="reactivateProduct()" [disabled]="shouldDisableReactivateButton()"
+                [rounded]="true" styleClass="mr-2"></p-button>
+        </div>
+    </ng-template>
+    }
+    } @else if(shouldDisplayButtons()){
+    <ng-template pTemplate="footer">
+        <div class="w-full text-right">
+            <p-button icon="pi pi-pencil" (onClick)="displayUpdateForm()" [rounded]="true" styleClass="mr-2"></p-button>
+            <p-button icon="pi pi-trash" (onClick)="deleteProduct()" [rounded]="true" styleClass="mr-2"></p-button>
+        </div>
+    </ng-template>
+    }
+</p-panel>
+
+<p-dialog [(visible)]="isUpdateModalVisible" [modal]="true" [draggable]="false" header="Editar Produto">
+    <form [formGroup]="updateForm">
+        <div class="mb-2">
+            <input pInputText formControlName="description" placeholder="Descrição" />
+        </div>
+        <div class="mb-2">
+            <p-inputNumber formControlName="amount" [min]="0" placeholder="Quantidade"></p-inputNumber>
+        </div>
+        <div class="mb-2">
+            <p-inputNumber formControlName="price" [minFractionDigits]="2" placeholder="Preço" [maxFractionDigits]="2"
+                [min]="0"></p-inputNumber>
+        </div>
+        <p-button label="Editar" (onClick)="updateProduct()" [disabled]="shouldDisableUpdateButton()" [rounded]="true"
+            styleClass="w-full"></p-button>
+    </form>
+</p-dialog>
