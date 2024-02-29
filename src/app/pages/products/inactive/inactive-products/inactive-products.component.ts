@@ -1,11 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { PaginatorComponent } from '../../../../common/components/paginator/paginator.component';
 import { ProductComponent } from '../../../../common/components/product/product.component';
 import { LoadingHelper } from '../../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../../common/helpers/message.helper';
+import { SubscriptionHelper } from '../../../../common/helpers/subscription.helper';
 import { Product } from '../../../../core/models/product';
 import { ProductService } from '../../../../core/services/product.service';
 import { Pageable } from '../../../../core/utils/pageable';
@@ -17,22 +18,27 @@ import { Pageable } from '../../../../core/utils/pageable';
   templateUrl: './inactive-products.component.html',
   styleUrl: './inactive-products.component.css'
 })
-export class InactiveProductsComponent implements OnInit {
+export class InactiveProductsComponent implements OnInit, OnDestroy {
   protected productService = inject(ProductService)
+  protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
   protected messager = inject(MessageHelper)
   protected products: Product[] = []
-  protected actualPage = 1
-  protected totalPages = 1
+  protected currentPage = 1
+  protected totalOfPages = 1
 
   public ngOnInit(): void {
     this.findInactiveProducts()
   }
 
+  public ngOnDestroy(): void {
+    this.subscriber.clean()
+  }
+
   protected findInactiveProducts(): void {
-    this.productService.findInactive(this.actualPage).subscribe({
+    const subscription = this.productService.findInactive(this.currentPage).subscribe({
       next: (response: Pageable<Product>) => {
-        this.totalPages = response.totalPages
+        this.totalOfPages = response.totalPages
         this.products = response.content
       },
       error: (response: HttpErrorResponse) => {
@@ -40,10 +46,12 @@ export class InactiveProductsComponent implements OnInit {
         this.resetPaginator()
       }
     })
+
+    this.subscriber.add(subscription)
   }
 
-  protected handleChildrenOperations(isSuccessful: boolean): void {
-    if (isSuccessful) {
+  protected shouldRefreshPage(shouldRefresh: boolean): void {
+    if (shouldRefresh) {
       this.findInactiveProducts()
     } else {
       this.resetPaginator()
@@ -51,8 +59,8 @@ export class InactiveProductsComponent implements OnInit {
   }
 
   protected resetPaginator(): void {
-    this.actualPage = 1
-    this.totalPages = 1
+    this.currentPage = 1
+    this.totalOfPages = 1
     this.products = []
   }
 }
