@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -8,6 +8,7 @@ import { PaginatorComponent } from '../../../../common/components/paginator/pagi
 import { ProductComponent } from '../../../../common/components/product/product.component';
 import { LoadingHelper } from '../../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../../common/helpers/message.helper';
+import { SubscriptionHelper } from '../../../../common/helpers/subscription.helper';
 import { Product } from '../../../../core/models/product';
 import { ProductService } from '../../../../core/services/product.service';
 import { Pageable } from '../../../../core/utils/pageable';
@@ -19,13 +20,14 @@ import { Pageable } from '../../../../core/utils/pageable';
   templateUrl: './search-product.component.html',
   styleUrl: './search-product.component.css'
 })
-export class SearchProductComponent implements OnInit {
+export class SearchProductComponent implements OnInit, OnDestroy {
   protected productService = inject(ProductService)
+  protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
   protected messager = inject(MessageHelper)
   protected products: Product[] = []
-  protected actualPage = 1
-  protected totalPages = 1
+  protected currentPage = 1
+  protected totalOfPages = 1
   protected searchedTerms = ''
   protected searchForm!: FormGroup
 
@@ -35,19 +37,16 @@ export class SearchProductComponent implements OnInit {
     })
   }
 
-  protected canDisplayPaginator(): boolean {
-    return this.products.length > 0
-  }
-
-  protected shouldDisableSearchButton(): boolean {
-    return this.loader.isUnderLoading() || this.searchForm.invalid
+  public ngOnDestroy(): void {
+    this.subscriber.clean()
   }
 
   protected searchProducts(): void {
     this.searchedTerms = this.searchForm.controls['description'].value
-    this.productService.findActiveByDescriptionContaining(this.searchedTerms, this.actualPage).subscribe({
+
+    const subscription = this.productService.findActiveByDescriptionContaining(this.searchedTerms, this.currentPage).subscribe({
       next: (response: Pageable<Product>) => {
-        this.totalPages = response.totalPages
+        this.totalOfPages = response.totalPages
         this.products = response.content
 
         if (this.products.length === 0) {
@@ -59,24 +58,26 @@ export class SearchProductComponent implements OnInit {
         this.resetPaginator()
       }
     })
+
+    this.subscriber.add(subscription)
   }
 
-  protected handleChildOperation(isSuccessful: boolean): void {
-    if (isSuccessful) {
+  protected shouldRefreshPage(shouldRefresh: boolean): void {
+    if (shouldRefresh) {
       this.searchProducts()
     } else {
       this.resetPaginator()
     }
   }
 
-  protected handlePageEvent(page: number): void {
-    this.actualPage = page
+  protected handlePageChange(page: number): void {
+    this.currentPage = page
     this.searchProducts()
   }
 
   protected resetPaginator(): void {
-    this.actualPage = 1
-    this.totalPages = 1
+    this.currentPage = 1
+    this.totalOfPages = 1
     this.products = []
   }
 

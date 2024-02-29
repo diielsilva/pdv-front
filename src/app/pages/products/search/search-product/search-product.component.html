@@ -1,15 +1,26 @@
+<!--Search Panel-->
 <p-panel header="Pesquisar Produto" styleClass="mt-2">
     <div class="flex justify-content-center mb-2">
+
+        <!--Search Form-->
         <form [formGroup]="searchForm">
             <input pInputText formControlName="description" placeholder="Pesquisar..." />
-            <p-button label="Pesquisar" (onClick)="searchProducts()" [disabled]="shouldDisableSearchButton()" styleClass="ml-2" [rounded]="true"></p-button>
+            <p-button label="Pesquisar" (onClick)="searchProducts()"
+                [disabled]="loader.isUnderLoading() || searchForm.invalid" styleClass="ml-2"
+                [rounded]="true"></p-button>
         </form>
+        <!--End Search Form-->
+
     </div>
 
     @for (product of products; track $index) {
-    <app-product [product]="product" (isOperationSuccessful)="handleChildOperation($event)"></app-product>
+    <app-product [product]="product" (shouldRefreshParentComponent)="shouldRefreshPage($event)"></app-product>
     }
 
-    <app-paginator [actualPage]="actualPage" [totalPages]="totalPages"
-        (changePageEvent)="handlePageEvent($event)"></app-paginator>
+    <!--Paginator-->
+    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
+        (changePageEvent)="handlePageChange($event)"></app-paginator>
+    <!--End Paginator-->
+
 </p-panel>
+<!--End Search Page-->
