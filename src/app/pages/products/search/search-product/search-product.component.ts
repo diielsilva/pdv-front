@@ -48,10 +48,6 @@ export class SearchProductComponent implements OnInit, OnDestroy {
       next: (response: Pageable<Product>) => {
         this.totalOfPages = response.totalPages
         this.products = response.content
-
-        if (this.products.length === 0) {
-          this.messager.displayMessage('Não foram encontrados produtos com a descrição indicada!', 'error')
-        }
       },
       error: (response: HttpErrorResponse) => {
         this.messager.displayMessage(response.error.message, 'error')

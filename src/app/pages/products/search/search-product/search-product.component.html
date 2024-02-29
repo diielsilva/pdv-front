@@ -5,9 +5,8 @@
         <!--Search Form-->
         <form [formGroup]="searchForm">
             <input pInputText formControlName="description" placeholder="Pesquisar..." />
-            <p-button label="Pesquisar" (onClick)="searchProducts()"
-                [disabled]="loader.isUnderLoading() || searchForm.invalid" styleClass="ml-2"
-                [rounded]="true"></p-button>
+            <p-button label="Pesquisar" (onClick)="searchProducts()" [disabled]="loader.isUnderLoading() || searchForm.invalid"
+                styleClass="ml-2" [rounded]="true"></p-button>
         </form>
         <!--End Search Form-->
 
