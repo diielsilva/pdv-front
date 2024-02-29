@@ -10,5 +10,5 @@ import { LoadingHelper } from '../../helpers/loading.helper';
   styleUrl: './loading.component.css'
 })
 export class LoadingComponent {
-  protected loadingHelper = inject(LoadingHelper)
+  protected loader = inject(LoadingHelper)
 }
