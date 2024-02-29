@@ -1,19 +1,25 @@
+<!--Search Panel-->
 <p-panel header="Pesquisar Vendas" styleClass="mt-2">
+
+    <!--Search Form-->
     <div class="mb-2">
         <form [formGroup]="searchForm">
             <div class="flex justify-content-center">
                 <p-calendar formControlName="date" placeholder="Data da Venda" dateFormat="dd/mm/yy"></p-calendar>
-                <p-button label="Pesquisar" [disabled]="shouldDisableSearchSaleButton()"
-                    (onClick)="handleSearchSaleButton()" [rounded]="true" styleClass="ml-2"></p-button>
+                <p-button label="Pesquisar" [disabled]="loader.isUnderLoading() || searchForm.invalid"
+                    (onClick)="searchSales()" [rounded]="true" styleClass="ml-2"></p-button>
             </div>
         </form>
     </div>
+    <!--End Search Form-->
+
     @if (sales.length > 0) {
     @for (sale of sales; track $index) {
     <app-sale [sale]="sale"></app-sale>
     }
 
-    <p-button label="Relatório do Dia" (onClick)="profitReport()" [disabled]="shouldDisableProfitReportButton()"
-        [rounded]="true" styleClass="w-full"></p-button>
+    <p-button label="Relatório do Dia" (onClick)="profitReport()" [disabled]="loader.isUnderLoading()" [rounded]="true"
+        styleClass="w-full"></p-button>
     }
 </p-panel>
+<!--End Search Panel-->
