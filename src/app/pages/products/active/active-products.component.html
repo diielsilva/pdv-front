@@ -1,9 +1,9 @@
 <p-panel header="Produtos Ativos" styleClass="mt-2">
     @for (product of products; track $index) {
-    <app-product [product]="product" (isOperationSuccessful)="handleChildrenOperations($event)"></app-product>
+    <app-product [product]="product" (shouldRefreshParentComponent)="shouldRefreshPage($event)"></app-product>
     } @empty {
     <div class="text-center">Não há produtos cadastrados!</div>
     }
-    <app-paginator [actualPage]="actualPage" [totalPages]="totalPages"
+    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
         (changePageEvent)="handlePageChange($event)"></app-paginator>
 </p-panel>

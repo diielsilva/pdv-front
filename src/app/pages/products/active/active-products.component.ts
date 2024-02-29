@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -11,6 +11,7 @@ import { PaginatorComponent } from '../../../common/components/paginator/paginat
 import { ProductComponent } from '../../../common/components/product/product.component';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
+import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { Product } from '../../../core/models/product';
 import { ProductService } from '../../../core/services/product.service';
 import { Pageable } from '../../../core/utils/pageable';
@@ -22,31 +23,37 @@ import { Pageable } from '../../../core/utils/pageable';
   templateUrl: './active-products.component.html',
   styleUrl: './active-products.component.css'
 })
-export class ActiveProductsComponent implements OnInit {
+export class ActiveProductsComponent implements OnInit, OnDestroy {
   protected productService = inject(ProductService)
+  protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
   protected messager = inject(MessageHelper)
   protected products: Product[] = []
-  protected actualPage = 1
-  protected totalPages = 1
-
+  protected currentPage = 1
+  protected totalOfPages = 1
 
   public ngOnInit(): void {
     this.findActiveProducts()
   }
 
+  public ngOnDestroy(): void {
+    this.subscriber.clean()
+  }
+
   protected findActiveProducts(): void {
-    this.productService.findActive(this.actualPage).subscribe({
+    const subscription = this.productService.findActive(this.currentPage).subscribe({
       next: (response: Pageable<Product>) => {
-        this.totalPages = response.totalPages
+        this.totalOfPages = response.totalPages
         this.products = response.content
       },
       error: (response: HttpErrorResponse) => this.messager.displayMessage(response.error.message, 'error')
     })
+
+    this.subscriber.add(subscription)
   }
 
-  protected handleChildrenOperations(isSuccessful: boolean): void {
-    if (isSuccessful) {
+  protected shouldRefreshPage(shouldRefresh: boolean): void {
+    if (shouldRefresh) {
       this.findActiveProducts()
     } else {
       this.resetPaginator()
@@ -54,13 +61,13 @@ export class ActiveProductsComponent implements OnInit {
   }
 
   protected handlePageChange(page: number): void {
-    this.actualPage = page
+    this.currentPage = page
     this.findActiveProducts()
   }
 
   protected resetPaginator(): void {
-    this.actualPage = 1
-    this.totalPages = 1
+    this.currentPage = 1
+    this.totalOfPages = 1
     this.products = []
   }
 
