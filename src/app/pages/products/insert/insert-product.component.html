@@ -1,21 +1,26 @@
+<!--Insert Product Panel-->
 <p-panel header="Inserir Produto" styleClass="mt-2">
-    <form [formGroup]="insertProductForm">
-       
-            <div class="mb-2">
-                <input pInputText formControlName="description" placeholder="Descrição" class="w-full" />
-            </div>
 
-            <div class="mb-2">
-                <p-inputNumber inputId="integeronly" formControlName="amount" placeholder="Quantidade"
-                    [min]="0" class="w-full" styleClass="w-full"></p-inputNumber>
-            </div>
+    <!--Insert Form-->
+    <form [formGroup]="insertForm">
+        <div class="mb-2">
+            <input pInputText formControlName="description" placeholder="Descrição" class="w-full" />
+        </div>
 
-            <div class="mb-2">
-                <p-inputNumber formControlName="price" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0"
-                    placeholder="Preço" class="w-full" styleClass="w-full"></p-inputNumber>
-            </div>
+        <div class="mb-2">
+            <p-inputNumber inputId="integeronly" formControlName="amount" placeholder="Quantidade" [min]="0"
+                class="w-full" styleClass="w-full"></p-inputNumber>
+        </div>
 
-            <p-button label="Cadastrar" (onClick)="insertProduct()" [disabled]="shouldDisableInsertProductButton()"
-                styleClass="w-full" [rounded]="true"></p-button>
+        <div class="mb-2">
+            <p-inputNumber formControlName="price" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0"
+                placeholder="Preço" class="w-full" styleClass="w-full"></p-inputNumber>
+        </div>
+
+        <p-button label="Cadastrar" (onClick)="insertProduct()"
+            [disabled]="loader.isUnderLoading() || insertForm.invalid" styleClass="w-full" [rounded]="true"></p-button>
     </form>
+    <!--End Insert Form-->
+
 </p-panel>
+<!--End Insert Product Panel-->
