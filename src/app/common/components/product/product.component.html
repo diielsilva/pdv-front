@@ -1,29 +1,41 @@
+<!--Product Panel-->
 <p-panel header="Produto" styleClass="mb-2">
+
     <div>Descrição: {{ product.description }}</div>
     <div>Quantidade em Estoque: {{ product.amount }}</div>
     <div>Preço: {{ product.price | currency }}</div>
     <div>Data de Criação: {{ product.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
-    @if (isProductInactive()) {
+    @if (product.deletedAt !== null && (authService.isUserAnAdmin() || authService.isUserAManager())) {
     <div>Data de Remoção: {{ product.deletedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
-    @if (shouldDisplayButtons()) {
+
+    <!--Product Footer With Reactivate Option-->
     <ng-template pTemplate="footer">
         <div class="w-full text-right">
-            <p-button icon=" pi pi-replay" (onClick)="reactivateProduct()" [disabled]="shouldDisableReactivateButton()"
+            <p-button icon=" pi pi-replay" (onClick)="reactivateProduct()" [disabled]="loader.isUnderLoading()"
                 [rounded]="true" styleClass="mr-2"></p-button>
         </div>
     </ng-template>
-    }
-    } @else if(shouldDisplayButtons()){
+    <!--End Product Footer With Reactivate Option-->
+
+    } @else if(authService.isUserAnAdmin() || authService.isUserAManager()){
+
+    <!--Product Footer With Update and Remove Options-->
     <ng-template pTemplate="footer">
         <div class="w-full text-right">
             <p-button icon="pi pi-pencil" (onClick)="displayUpdateForm()" [rounded]="true" styleClass="mr-2"></p-button>
             <p-button icon="pi pi-trash" (onClick)="deleteProduct()" [rounded]="true" styleClass="mr-2"></p-button>
         </div>
     </ng-template>
+    <!--End Product Footer With Update and Remove Options-->
+
     }
 </p-panel>
+<!--End Product Panel-->
 
+<!--Update Dialog-->
 <p-dialog [(visible)]="isUpdateModalVisible" [modal]="true" [draggable]="false" header="Editar Produto">
+
+    <!--Update Form-->
     <form [formGroup]="updateForm">
         <div class="mb-2">
             <input pInputText formControlName="description" placeholder="Descrição" />
@@ -35,7 +47,10 @@
             <p-inputNumber formControlName="price" [minFractionDigits]="2" placeholder="Preço" [maxFractionDigits]="2"
                 [min]="0"></p-inputNumber>
         </div>
-        <p-button label="Editar" (onClick)="updateProduct()" [disabled]="shouldDisableUpdateButton()" [rounded]="true"
-            styleClass="w-full"></p-button>
+        <p-button label="Editar" (onClick)="updateProduct()" [disabled]="loader.isUnderLoading() || updateForm.invalid"
+            [rounded]="true" styleClass="w-full"></p-button>
     </form>
+    <!--End Update Form-->
+
 </p-dialog>
+<!--End Update Dialog-->

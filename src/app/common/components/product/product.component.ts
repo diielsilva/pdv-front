@@ -1,6 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -10,8 +10,10 @@ import { PanelModule } from 'primeng/panel';
 import { Product } from '../../../core/models/product';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService } from '../../../core/services/product.service';
+import { ProductRequest } from '../../dtos/products/product.request';
 import { LoadingHelper } from '../../helpers/loading.helper';
 import { MessageHelper } from '../../helpers/message.helper';
+import { SubscriptionHelper } from '../../helpers/subscription.helper';
 
 @Component({
   selector: 'app-product',
@@ -20,17 +22,18 @@ import { MessageHelper } from '../../helpers/message.helper';
   templateUrl: './product.component.html',
   styleUrl: './product.component.css'
 })
-export class ProductComponent implements OnInit {
+export class ProductComponent implements OnInit, OnDestroy {
   protected productService = inject(ProductService)
   protected authService = inject(AuthService)
+  protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
   protected messager = inject(MessageHelper)
   protected isUpdateModalVisible = false
   protected updateForm!: FormGroup
   @Input({ required: true }) public product!: Product
-  @Output() public isOperationSuccessful = new EventEmitter<boolean>()
+  @Output() public shouldRefreshParentComponent = new EventEmitter<boolean>()
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.updateForm = new FormGroup({
       description: new FormControl<string | null>(null, { validators: [Validators.required] }),
       amount: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(0)] }),
@@ -38,12 +41,8 @@ export class ProductComponent implements OnInit {
     })
   }
 
-  protected isProductInactive(): boolean {
-    return this.product.deletedAt !== null
-  }
-
-  protected shouldDisplayButtons(): boolean {
-    return this.authService.isUserAnAdmin() || this.authService.isUserAManager()
+  public ngOnDestroy(): void {
+    this.subscriber.clean()
   }
 
   protected displayUpdateForm(): void {
@@ -53,55 +52,54 @@ export class ProductComponent implements OnInit {
     this.isUpdateModalVisible = true
   }
 
-  protected shouldDisableUpdateButton(): boolean {
-    return this.loader.isUnderLoading() || this.updateForm.invalid
-  }
-
   protected updateProduct(): void {
-    const id = this.product.id
-    const description = this.updateForm.controls['description'].value
-    const amount = this.updateForm.controls['amount'].value
-    const price = this.updateForm.controls['price'].value
+    const dto: ProductRequest = {
+      description: this.updateForm.controls['description'].value,
+      amount: this.updateForm.controls['amount'].value,
+      price: this.updateForm.controls['price'].value
+    }
 
-    this.productService.update(id, description, amount, price).subscribe({
+    const subscription = this.productService.update(this.product.id, dto).subscribe({
       next: () => {
         this.messager.displayMessage('Produto atualizado com sucesso!', 'success')
-        this.isOperationSuccessful.emit(true)
+        this.shouldRefreshParentComponent.emit(true)
       },
       error: (response: HttpErrorResponse) => {
         this.messager.displayMessage(response.error.message, 'error')
-        this.isOperationSuccessful.emit(false)
+        this.shouldRefreshParentComponent.emit(false)
       }
     })
+
+    this.subscriber.add(subscription)
   }
 
   protected deleteProduct(): void {
-    this.productService.delete(this.product.id).subscribe({
+    const subscription = this.productService.delete(this.product.id).subscribe({
       next: () => {
         this.messager.displayMessage('O produto foi removido com sucesso!', 'success')
-        this.isOperationSuccessful.emit(true)
+        this.shouldRefreshParentComponent.emit(true)
       },
       error: (response: HttpErrorResponse) => {
         this.messager.displayMessage(response.error.message, 'error')
-        this.isOperationSuccessful.emit(false)
+        this.shouldRefreshParentComponent.emit(false)
       }
     })
-  }
 
-  protected shouldDisableReactivateButton(): boolean {
-    return this.loader.isUnderLoading()
+    this.subscriber.add(subscription)
   }
 
   protected reactivateProduct(): void {
-    this.productService.reactivate(this.product.id).subscribe({
+    const subscription = this.productService.reactivate(this.product.id).subscribe({
       next: () => {
         this.messager.displayMessage('O produto foi reativado com sucesso!', 'success')
-        this.isOperationSuccessful.emit(true)
+        this.shouldRefreshParentComponent.emit(true)
       },
       error: (response: HttpErrorResponse) => {
         this.messager.displayMessage(response.error.message, 'error')
-        this.isOperationSuccessful.emit(false)
+        this.shouldRefreshParentComponent.emit(false)
       }
     })
+
+    this.subscriber.add(subscription)
   }
 }
