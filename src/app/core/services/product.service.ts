@@ -13,9 +13,8 @@ export class ProductService {
   private baseUrl = `${constants.api}/products`
   private httpClient = inject(HttpClient)
 
-  public save(description: string, amount: number, price: number): Observable<Product> {
-    const requestBody: ProductRequest = { description, amount, price }
-    return this.httpClient.post<Product>(this.baseUrl, requestBody)
+  public save(dto: ProductRequest): Observable<Product> {
+    return this.httpClient.post<Product>(this.baseUrl, dto)
   }
 
   public findActive(page: number): Observable<Pageable<Product>> {
@@ -34,9 +33,8 @@ export class ProductService {
     return this.httpClient.get<Product>(`${this.baseUrl}/active/${id}`)
   }
 
-  public update(id: number, description: string, amount: number, price: number): Observable<Product> {
-    const requestBody: ProductRequest = { description, amount, price }
-    return this.httpClient.put<Product>(`${this.baseUrl}/${id}`, requestBody)
+  public update(id: number, dto: ProductRequest): Observable<Product> {
+    return this.httpClient.put<Product>(`${this.baseUrl}/${id}`, dto)
   }
 
   public delete(id: number): Observable<void> {
