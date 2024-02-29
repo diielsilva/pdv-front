@@ -1,23 +1,29 @@
+<!--Sale Panel-->
 <p-panel header="Venda" styleClass="mb-2">
     <div>Desconto: {{ sale.discount }} %</div>
     <div>Forma de Pagamento: {{ sale.paymentMethod | paymentMethod }}</div>
     <div>Total (Sem Desconto): {{ sale.total.toFixed(2) | currency }}</div>
     <div>Data da Criação: {{ sale.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
-    @if (isSaleInactive()) {
+    @if (sale.deletedAt !== null) {
     <div>Data da Remoção: {{ sale.deletedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
     } @else {
+
+    <!--Sale Footer With Details and Report Options-->
     <ng-template pTemplate="footer">
         <div class="w-full text-right">
-            <p-button icon="pi pi-eye" (onClick)="getSaleDetails()" [disabled]="shouldDisableButtons()"
+            <p-button icon="pi pi-eye" (onClick)="displaySaleDetails()" [disabled]="loader.isUnderLoading()"
                 styleClass="mr-2" [rounded]="true"></p-button>
-            <p-button icon="pi pi-file-pdf" (onClick)="generateSaleReport()" [disabled]="shouldDisableButtons()"
+            <p-button icon="pi pi-file-pdf" (onClick)="generateSaleReport()" [disabled]="loader.isUnderLoading()"
                 styleClass="mr-2" [rounded]="true"></p-button>
         </div>
-        <!--<p-button label="Remover" (onClick)="deleteSale()" [disabled]="shouldDisableButtons()"></p-button>-->
     </ng-template>
+    <!--End Sale Footer With Details and Report Options-->
+
     }
 </p-panel>
+<!--Sale Panel-->
 
+<!--Sale Details Modal-->
 <p-dialog [(visible)]="isDetailsModalVisible" [modal]="true" [draggable]="false" header="Detalhes da Venda">
     <div>Vendedor: {{ saleDetails?.sellerName }}</div>
     <p-divider></p-divider>
@@ -28,3 +34,4 @@
     <p-divider></p-divider>
     }
 </p-dialog>
+<!--End Sale Details Modal-->

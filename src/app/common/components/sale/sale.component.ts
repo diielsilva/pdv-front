@@ -11,6 +11,7 @@ import { SaleService } from '../../../core/services/sale.service';
 import { SaleDetailsResponse } from '../../dtos/sales/sale-details.response';
 import { LoadingHelper } from '../../helpers/loading.helper';
 import { MessageHelper } from '../../helpers/message.helper';
+import { SubscriptionHelper } from '../../helpers/subscription.helper';
 import { PaymentMethodPipe } from '../../pipes/payment-method.pipe';
 
 @Component({
@@ -23,52 +24,40 @@ import { PaymentMethodPipe } from '../../pipes/payment-method.pipe';
 export class SaleComponent {
   protected saleService = inject(SaleService)
   protected reportService = inject(ReportService)
+  protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
   protected messager = inject(MessageHelper)
   protected isDetailsModalVisible = false
   protected saleDetails?: SaleDetailsResponse
   @Input({ required: true }) public sale!: Sale
-  @Output() public onHttpRequestEvent = new EventEmitter<boolean>()
+  @Output() public shouldRefreshParentComponent = new EventEmitter<boolean>()
 
-  protected isSaleInactive(): boolean {
-    return this.sale.deletedAt !== null
+  public ngOnDestroy(): void {
+    this.subscriber.clean()
   }
 
-  protected shouldDisableButtons(): boolean {
-    return this.loader.isUnderLoading()
-  }
-
-  protected getSaleDetails(): void {
-    this.saleService.details(this.sale.id).subscribe({
+  protected displaySaleDetails(): void {
+    const subscription = this.saleService.details(this.sale.id).subscribe({
       next: (response: SaleDetailsResponse) => {
         this.saleDetails = response
         this.isDetailsModalVisible = true
       },
       error: (response: HttpErrorResponse) => this.messager.displayMessage(response.error.message, 'error')
     })
+
+    this.subscriber.add(subscription)
   }
 
   protected generateSaleReport(): void {
-    this.reportService.generateSaleReport(this.sale).subscribe({
+    const subscription = this.reportService.generateSaleReport(this.sale).subscribe({
       next: (response: Blob) => {
         const reportWindow = window.URL.createObjectURL(response)
         window.open(reportWindow)
       },
       error: (response: HttpErrorResponse) => this.messager.displayMessage(response.error.message, 'error')
     })
-  }
 
-  protected deleteSale(): void {
-    this.saleService.delete(this.sale.id).subscribe({
-      next: () => {
-        this.messager.displayMessage('Venda removida com sucesso!', 'success')
-        this.onHttpRequestEvent.emit(true)
-      },
-      error: (response: HttpErrorResponse) => {
-        this.messager.displayMessage(response.error.message, 'error')
-        this.onHttpRequestEvent.emit(false)
-      }
-    })
+    this.subscriber.add(subscription)
   }
 
 }
