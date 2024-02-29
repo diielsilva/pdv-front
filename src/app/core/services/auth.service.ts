@@ -12,13 +12,22 @@ export class AuthService {
   private baseUrl = `${constants.api}/login`
   private httpClient = inject(HttpClient)
 
-  public login(login: string, password: string): Observable<LoginResponse> {
-    const requestBody: LoginRequest = { login, password }
-    return this.httpClient.post<LoginResponse>(this.baseUrl, requestBody)
+  public login(dto: LoginRequest): Observable<LoginResponse> {
+    return this.httpClient.post<LoginResponse>(this.baseUrl, dto)
   }
 
   public logout(): void {
     localStorage.clear()
+  }
+
+  public onSuccessfulLogin(dto: LoginResponse): void {
+    localStorage.setItem('token', dto.token)
+    localStorage.setItem('role', dto.role)
+  }
+
+  public getToken(): string {
+    const token = localStorage.getItem('token')
+    return token === null ? '' : token
   }
 
   public hasOnlineUser(): boolean {
@@ -31,16 +40,6 @@ export class AuthService {
 
   public isUserAManager(): boolean {
     return this.hasOnlineUser() && localStorage.getItem('role') === 'MANAGER'
-  }
-
-  public onSuccessfulLogin(loginResponse: LoginResponse): void {
-    localStorage.setItem('token', loginResponse.token)
-    localStorage.setItem('role', loginResponse.role)
-  }
-
-  public getToken(): string {
-    const token = localStorage.getItem('token')
-    return token === null ? '' : token
   }
 
 }
