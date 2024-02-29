@@ -1,4 +1,5 @@
-<p-toast position="top-right" (onClose)="messageHelper.hiddenMessage()">
+<!--Message Toast-->
+<p-toast position="top-right" (onClose)="messager.hiddenMessage()">
     <ng-template let-message pTemplate="message">
         <div class="flex flex-column" style="flex: 1">
             <h4 class="mb-2">{{ message.summary }}</h4>
@@ -6,3 +7,4 @@
         </div>
     </ng-template>
 </p-toast>
+<!--End Message Toast-->
