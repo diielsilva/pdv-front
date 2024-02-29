@@ -1,10 +1,16 @@
+<!-- Form Panel-->
 <p-panel header="Login">
+
+    <!--Login Form-->
     <form [formGroup]="loginForm">
         <input pInputText formControlName="login" placeholder="Usuário" class="w-full m-1" />
         <input type="password" pInputText formControlName="password" placeholder="Senha" class="w-full m-1">
         <div class="w-full text-center">
-            <p-button label="Login" [disabled]="shouldDisableLoginButton()" (onClick)="attemptAuthenticate()"
-                styleClass="w-full m-1" [rounded]="true"></p-button>
+            <p-button label="Login" [disabled]="loader.isUnderLoading() || loginForm.invalid"
+                (onClick)="attemptAuthenticate()" styleClass="w-full m-1" [rounded]="true"></p-button>
         </div>
     </form>
+    <!--End Login Form-->
+
 </p-panel>
+<!--End Form Panel-->

@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from "primeng/button";
@@ -8,9 +8,11 @@ import { PanelModule } from "primeng/panel";
 import { PasswordModule } from "primeng/password";
 import { LoadingComponent } from '../../../common/components/loading/loading.component';
 import { MessageComponent } from '../../../common/components/message/message.component';
+import { LoginRequest } from '../../../common/dtos/login/login.request';
 import { LoginResponse } from '../../../common/dtos/login/login.response';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
+import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -20,9 +22,10 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   protected authService = inject(AuthService)
   protected router = inject(Router)
+  protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
   protected messager = inject(MessageHelper)
   protected loginForm!: FormGroup
@@ -36,11 +39,14 @@ export class LoginComponent implements OnInit {
     this.authService.logout()
   }
 
-  protected attemptAuthenticate(): void {
-    const login = this.loginForm.controls['login'].value
-    const password = this.loginForm.controls['password'].value
+  public ngOnDestroy(): void {
+    this.subscriber.clean()
+  }
 
-    this.authService.login(login, password)
+  protected attemptAuthenticate(): void {
+    const dto: LoginRequest = { login: this.loginForm.controls['login'].value, password: this.loginForm.controls['password'].value }
+
+    const subscription = this.authService.login(dto)
       .subscribe({
         next: (response: LoginResponse) => {
           this.authService.onSuccessfulLogin(response)
@@ -50,10 +56,8 @@ export class LoginComponent implements OnInit {
           this.messager.displayMessage(response.error.message, 'error')
         }
       })
-  }
 
-  protected shouldDisableLoginButton(): boolean {
-    return this.loader.isUnderLoading() || this.loginForm.invalid
+    this.subscriber.add(subscription)
   }
 
 }
