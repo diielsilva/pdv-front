@@ -1,4 +1,7 @@
+<!--Insert Into Cart Panel-->
 <p-panel header="Inserir Produto" styleClass="mt-2">
+
+    <!--Cart Form-->
     <form [formGroup]="cartForm">
         <div class="mb-2">
             <p-inputNumber formControlName="productId" placeholder="ID do Produto" styleClass="w-full"
@@ -8,11 +11,15 @@
             <p-inputNumber formControlName="amount" placeholder="Quantidade" styleClass="w-full"
                 class="w-full"></p-inputNumber>
         </div>
-        <p-button label="Adicionar ao Carrinho" [disabled]="shouldDisableInsertIntoCartButton()"
-            (onClick)="handleInsertIntoCartButton()" [rounded]="true" styleClass="w-full"></p-button>
+        <p-button label="Adicionar ao Carrinho" [disabled]="loader.isUnderLoading() || cartForm.invalid"
+            (onClick)="insertIntoCart()" [rounded]="true" styleClass="w-full"></p-button>
     </form>
-</p-panel>
+    <!--End Cart Form-->
 
+</p-panel>
+<!--End Insert Into Cart Panel-->
+
+<!--Cart Panel-->
 <p-panel header="Carrinho de Compras" styleClass="mt-2">
     @for (item of purchaseCart; track $index) {
     <p-panel header="Produto">
@@ -21,8 +28,7 @@
         <div>Preço: {{ item.price | currency }}</div>
         <ng-template pTemplate="footer">
             <div class="text-right">
-                <p-button icon="pi pi-trash" (onClick)="handleRemoveFromCartButton(item.productId)"
-                    [rounded]="true"></p-button>
+                <p-button icon="pi pi-trash" (onClick)="removeFromCart(item.productId)" [rounded]="true"></p-button>
             </div>
         </ng-template>
     </p-panel>
@@ -30,21 +36,29 @@
     } @empty {
     <div class="text-center">Não há produtos no carrinho!</div>
     }
-
-    @if(purchaseCart.length > 0) {
-    <p-panel header="Finalizar Venda" styleClass="mt-2">
-        <form [formGroup]="saleForm">
-            <div class="mb-2">
-                <p-inputNumber formControlName="discount" placeholder="Desconto (Em %)" class="w-full"
-                    styleClass="w-full"></p-inputNumber>
-            </div>
-            <div class="mb-2">
-                <p-dropdown formControlName="paymentMethod" [options]="paymentMethods" placeholder="Forma de Pagamento"
-                    class="w-full" styleClass="w-full"></p-dropdown>
-            </div>
-            <p-button label="Finalizar Venda" [disabled]="shouldDisableFinishSaleButton()"
-                (onClick)="handleFinishSaleButton()" [rounded]="true" styleClass="w-full"></p-button>
-        </form>
-    </p-panel>
-    }
 </p-panel>
+
+<!--End Cart Panel-->
+
+<!--Finish Sale Panel-->
+@if(purchaseCart.length > 0) {
+<p-panel header="Finalizar Venda" styleClass="mt-2">
+
+    <!--Finish Sale Form-->
+    <form [formGroup]="saleForm">
+        <div class="mb-2">
+            <p-inputNumber formControlName="discount" placeholder="Desconto (Em %)" class="w-full"
+                styleClass="w-full"></p-inputNumber>
+        </div>
+        <div class="mb-2">
+            <p-dropdown formControlName="paymentMethod" [options]="paymentMethods" placeholder="Forma de Pagamento"
+                class="w-full" styleClass="w-full"></p-dropdown>
+        </div>
+        <p-button label="Finalizar Venda" [disabled]="loader.isUnderLoading() || saleForm.invalid"
+            (onClick)="finishSale()" [rounded]="true" styleClass="w-full"></p-button>
+    </form>
+    <!--End Finish Sale Form-->
+
+</p-panel>
+}
+<!--End Finish Panel-->

@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -12,6 +12,7 @@ import { SaleItemRequest } from '../../../common/dtos/sales/sale-item.request';
 import { SaleRequest } from '../../../common/dtos/sales/sale.request';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
+import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { Product } from '../../../core/models/product';
 import { ProductService } from '../../../core/services/product.service';
 import { SaleService } from '../../../core/services/sale.service';
@@ -23,103 +24,96 @@ import { SaleService } from '../../../core/services/sale.service';
   templateUrl: './insert-sale.component.html',
   styleUrl: './insert-sale.component.css'
 })
-export class InsertSaleComponent implements OnInit {
+export class InsertSaleComponent implements OnInit, OnDestroy {
+  protected saleService = inject(SaleService)
+  protected productService = inject(ProductService)
+  protected subscriber = inject(SubscriptionHelper)
+  protected messager = inject(MessageHelper)
+  protected loader = inject(LoadingHelper)
   protected cartForm!: FormGroup
   protected saleForm!: FormGroup
-  protected formBuilder = inject(FormBuilder)
-  protected messageHelper = inject(MessageHelper)
-  protected loadingHelper = inject(LoadingHelper)
-  protected purchaseCart: CartItemResponse[] = []
-  protected productService = inject(ProductService)
-  protected saleService = inject(SaleService)
   protected paymentMethods = ['Cartão', 'Pix', 'Dinheiro']
+  protected purchaseCart: CartItemResponse[] = []
 
-  ngOnInit(): void {
-    this.cartForm = this.formBuilder.group({
-      productId: [null, [Validators.required, Validators.min(1)]],
-      amount: [null, [Validators.required, Validators.min(1)]]
+  public ngOnInit(): void {
+    this.cartForm = new FormGroup({
+      productId: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(1)] }),
+      amount: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(1)] })
     })
 
-    this.saleForm = this.formBuilder.group({
-      discount: [null, Validators.max(100)],
-      paymentMethod: [null, Validators.required]
+    this.saleForm = new FormGroup({
+      discount: new FormControl<number | null>(null, { validators: [Validators.min(0), Validators.max(100)] }),
+      paymentMethod: new FormControl<string | null>(null, { validators: [Validators.required] })
     })
 
   }
 
-  handleInsertIntoCartButton(): void {
-    if (this.cartForm.valid) {
+  public ngOnDestroy(): void {
+    this.subscriber.clean()
+  }
 
-      const productId: number = this.cartForm.get('productId')?.value
+  protected insertIntoCart(): void {
+    const productId: number = this.cartForm.controls['productId'].value
 
-      if (this.hasDuplicatedProducts()) {
-        this.messageHelper.displayMessage('O produto selecionado já está no carrinho!', 'error')
-      } else {
-        this.productService.findActiveById(productId).subscribe({
-          next: (product: Product) => {
+    if (this.hasDuplicatedProducts()) {
+      this.messager.displayMessage('O produto selecionado já está no carrinho!', 'error')
+    } else {
+      const subscription = this.productService.findActiveById(productId).subscribe({
+        next: (product: Product) => {
 
-            const cartItem: CartItemResponse = {
-              productId: product.id,
-              description: product.description,
-              amount: this.cartForm.get('amount')?.value,
-              price: product.price
-            }
-
-            if (cartItem.amount > product.amount) {
-              this.messageHelper.displayMessage('Não há estoque suficiente do produto selecionado!', 'error')
-            } else {
-              this.purchaseCart.push(cartItem)
-              this.cartForm.reset()
-            }
-
-          },
-          error: (response: HttpErrorResponse) => {
-            this.messageHelper.displayMessage(response.error.message, 'error')
+          const item: CartItemResponse = {
+            productId: product.id,
+            description: product.description,
+            amount: this.cartForm.controls['amount'].value,
+            price: product.price
           }
-        })
-      }
 
-    }
-  }
+          if (item.amount > product.amount) {
+            this.messager.displayMessage('Não há estoque suficiente do produto selecionado!', 'error')
+          } else {
+            this.purchaseCart.push(item)
+            this.cartForm.reset()
+          }
 
-  shouldDisableInsertIntoCartButton(): boolean {
-    return this.loadingHelper.isUnderLoading() || this.cartForm.invalid
-  }
-
-  handleFinishSaleButton(): void {
-    if (this.saleForm.valid) {
-      const saleRequest: SaleRequest = {
-        discount: this.saleForm.get('discount')?.value === null ? 0 : this.saleForm.get('discount')?.value,
-        paymentMethod: this.convertToValidPaymentMethod(this.saleForm.get('paymentMethod')?.value),
-        items: []
-      }
-
-      for (let i = 0; i < this.purchaseCart.length; i++) {
-        const item: SaleItemRequest = { productId: this.purchaseCart[i].productId, amount: this.purchaseCart[i].amount }
-        saleRequest.items.push(item)
-      }
-
-      this.saleService.save(saleRequest).subscribe({
-        next: () => {
-          this.messageHelper.displayMessage('Venda cadastrada com sucesso!', 'success')
-          this.cartForm.reset()
-          this.purchaseCart = []
         },
         error: (response: HttpErrorResponse) => {
-          this.messageHelper.displayMessage(response.error.message, 'error')
+          this.messager.displayMessage(response.error.message, 'error')
         }
       })
+
+      this.subscriber.add(subscription)
     }
   }
 
-  shouldDisableFinishSaleButton(): boolean {
-    return this.loadingHelper.isUnderLoading() || this.saleForm.invalid
+  protected finishSale(): void {
+    const dto: SaleRequest = {
+      discount: this.saleForm.controls['discount'].value === null ? 0 : this.saleForm.controls['discount'].value,
+      paymentMethod: this.convertToValidPaymentMethod(this.saleForm.controls['paymentMethod'].value),
+      items: []
+    }
+
+    for (let i = 0; i < this.purchaseCart.length; i++) {
+      const item: SaleItemRequest = { productId: this.purchaseCart[i].productId, amount: this.purchaseCart[i].amount }
+      dto.items.push(item)
+    }
+
+    const subscription = this.saleService.save(dto).subscribe({
+      next: () => {
+        this.messager.displayMessage('Venda cadastrada com sucesso!', 'success')
+        this.cartForm.reset()
+        this.purchaseCart = []
+      },
+      error: (response: HttpErrorResponse) => {
+        this.messager.displayMessage(response.error.message, 'error')
+      }
+    })
+
+    this.subscriber.add(subscription)
   }
 
-  hasDuplicatedProducts(): boolean {
+  protected hasDuplicatedProducts(): boolean {
     for (let i = 0; i < this.purchaseCart.length; i++) {
-
-      if (this.purchaseCart[i].productId === this.cartForm.get('productId')?.value) {
+      if (this.purchaseCart[i].productId === this.cartForm.controls['productId'].value) {
         return true
       }
 
@@ -128,7 +122,7 @@ export class InsertSaleComponent implements OnInit {
     return false
   }
 
-  convertToValidPaymentMethod(paymentMethod: string): string {
+  protected convertToValidPaymentMethod(paymentMethod: string): string {
     switch (paymentMethod) {
       case 'Cartão':
         return 'CARD'
@@ -141,7 +135,7 @@ export class InsertSaleComponent implements OnInit {
     }
   }
 
-  handleRemoveFromCartButton(productId: number): void {
+  protected removeFromCart(productId: number): void {
     const updatedSaleItems: CartItemResponse[] = []
     for (let i = 0; i < this.purchaseCart.length; i++) {
       if (this.purchaseCart[i].productId !== productId) {
