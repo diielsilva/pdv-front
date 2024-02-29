@@ -1,11 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { PaginatorModule } from 'primeng/paginator';
 import { PanelModule } from 'primeng/panel';
 import { PaginatorComponent } from '../../../common/components/paginator/paginator.component';
 import { SaleComponent } from '../../../common/components/sale/sale.component';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
+import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { Sale } from '../../../core/models/sale';
 import { SaleService } from '../../../core/services/sale.service';
 import { Pageable } from '../../../core/utils/pageable';
@@ -17,32 +18,39 @@ import { Pageable } from '../../../core/utils/pageable';
   templateUrl: './active-sales.component.html',
   styleUrl: './active-sales.component.css'
 })
-export class ActiveSalesComponent implements OnInit {
+export class ActiveSalesComponent implements OnInit, OnDestroy {
   protected saleService = inject(SaleService)
+  protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
   protected messager = inject(MessageHelper)
-  protected actualPage = 1
-  protected totalPages = 1
+  protected currentPage = 1
+  protected totalOfPages = 1
   protected sales: Sale[] = []
 
   public ngOnInit(): void {
     this.findActiveSales()
   }
 
+  public ngOnDestroy(): void {
+    this.subscriber.clean()
+  }
+
   protected findActiveSales(): void {
-    this.saleService.findActive(this.actualPage).subscribe({
+    const subscription = this.saleService.findActive(this.currentPage).subscribe({
       next: (response: Pageable<Sale>) => {
-        this.totalPages = response.totalPages
+        this.totalOfPages = response.totalPages
         this.sales = response.content
       },
       error: (response: HttpErrorResponse) => {
         this.messager.displayMessage(response.error.message, 'error')
       }
     })
+
+    this.subscriber.add(subscription)
   }
 
-  protected handleChangesInsideChildren(value: boolean): void {
-    if (value) {
+  protected shouldRefreshPage(shouldRefresh: boolean): void {
+    if (shouldRefresh) {
       this.findActiveSales()
     } else {
       this.resetPaginator()
@@ -50,13 +58,13 @@ export class ActiveSalesComponent implements OnInit {
   }
 
   protected onPageChange(page: number): void {
-    this.actualPage = page
+    this.currentPage = page
     this.findActiveSales()
   }
 
   protected resetPaginator(): void {
-    this.actualPage = 1
-    this.totalPages = 1
+    this.currentPage = 1
+    this.totalOfPages = 1
     this.sales = []
   }
 

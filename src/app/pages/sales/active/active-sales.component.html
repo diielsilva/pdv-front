@@ -1,9 +1,15 @@
+<!--Sales Panel-->
 <p-panel header="Vendas Ativas">
     @for (sale of sales; track $index) {
-    <app-sale [sale]="sale" (onHttpRequestEvent)="handleChangesInsideChildren($event)"></app-sale>
+    <app-sale [sale]="sale" (shouldRefreshParentComponent)="shouldRefreshPage($event)"></app-sale>
     } @empty {
     <div>Não há vendas ativas!</div>
     }
-    <app-paginator [actualPage]="actualPage" [totalPages]="totalPages"
+
+    <!--Paginator-->
+    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
         (changePageEvent)="onPageChange($event)"></app-paginator>
+    <!--End Paginator-->
+
 </p-panel>
+<!--End Sales Panel-->
