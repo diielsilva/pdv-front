@@ -142,6 +142,11 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
         updatedSaleItems.push(this.purchaseCart[i])
       }
     }
+
+    if (updatedSaleItems.length === 0) {
+      this.saleForm.reset()
+    }
+
     this.purchaseCart = updatedSaleItems;
   }
 }
