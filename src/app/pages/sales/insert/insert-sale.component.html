@@ -22,7 +22,8 @@
 <!--Cart Panel-->
 <p-panel header="Carrinho de Compras" styleClass="mt-2">
     @for (item of purchaseCart; track $index) {
-    <p-panel header="Produto">
+    <p-panel header="Produto" styleClass="mt-2">
+        <div>Código: {{ item.productId }}</div>
         <div>Descrição: {{ item.description }}</div>
         <div>Quantidade: {{ item.amount }}</div>
         <div>Preço: {{ item.price | currency }}</div>
@@ -32,12 +33,15 @@
             </div>
         </ng-template>
     </p-panel>
-
     } @empty {
     <div class="text-center">Não há produtos no carrinho!</div>
     }
+    @if(purchaseCart.length > 0) {
+        <p-panel header="Total do Carrinho" styleClass="mt-2">
+            <div class="text-center">Total Sem Desconto: {{ cartTotalWithoutDiscount | currency }}</div>
+        </p-panel>
+    }
 </p-panel>
-
 <!--End Cart Panel-->
 
 <!--Finish Sale Panel-->

@@ -34,6 +34,7 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
   protected saleForm!: FormGroup
   protected paymentMethods = ['Cartão', 'Pix', 'Dinheiro']
   protected purchaseCart: CartItemResponse[] = []
+  protected cartTotalWithoutDiscount = 0
 
   public ngOnInit(): void {
     this.cartForm = new FormGroup({
@@ -73,6 +74,7 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
           } else {
             this.purchaseCart.push(item)
             this.cartForm.reset()
+            this.calculateSubTotal()
           }
 
         },
@@ -122,6 +124,13 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
     return false
   }
 
+  protected calculateSubTotal(): void {
+    this.cartTotalWithoutDiscount = 0
+    this.purchaseCart.forEach(item => {
+      this.cartTotalWithoutDiscount += item.amount * item.price
+    })
+  }
+
   protected convertToValidPaymentMethod(paymentMethod: string): string {
     switch (paymentMethod) {
       case 'Cartão':
@@ -137,6 +146,7 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
 
   protected removeFromCart(productId: number): void {
     const updatedSaleItems: CartItemResponse[] = []
+
     for (let i = 0; i < this.purchaseCart.length; i++) {
       if (this.purchaseCart[i].productId !== productId) {
         updatedSaleItems.push(this.purchaseCart[i])
@@ -148,5 +158,7 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
     }
 
     this.purchaseCart = updatedSaleItems;
+
+    this.calculateSubTotal()
   }
 }
