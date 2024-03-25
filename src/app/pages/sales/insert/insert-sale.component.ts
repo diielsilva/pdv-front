@@ -15,7 +15,9 @@ import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
 import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { Product } from '../../../core/models/product';
+import { Sale } from '../../../core/models/sale';
 import { ProductService } from '../../../core/services/product.service';
+import { ReportService } from '../../../core/services/report.service';
 import { SaleService } from '../../../core/services/sale.service';
 
 @Component({
@@ -28,6 +30,7 @@ import { SaleService } from '../../../core/services/sale.service';
 export class InsertSaleComponent implements OnInit, OnDestroy {
   protected saleService = inject(SaleService)
   protected productService = inject(ProductService)
+  protected reportService = inject(ReportService)
   protected subscriber = inject(SubscriptionHelper)
   protected messager = inject(MessageHelper)
   protected loader = inject(LoadingHelper)
@@ -101,10 +104,12 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
     }
 
     const subscription = this.saleService.save(dto).subscribe({
-      next: () => {
+      next: (sale: Sale) => {
         this.messager.displayMessage('Venda cadastrada com sucesso!', 'success')
         this.cartForm.reset()
+        this.saleForm.reset()
         this.purchaseCart = []
+        this.generateSaleReport(sale)
       },
       error: (response: HttpErrorResponse) => {
         this.messager.displayMessage(response.error.message, 'error')
@@ -161,5 +166,17 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
     this.purchaseCart = updatedSaleItems;
 
     this.calculateSubTotal()
+  }
+
+  protected generateSaleReport(sale: Sale): void {
+    const subscription = this.reportService.generateSaleReport(sale).subscribe({
+      next: (response: Blob) => {
+        const reportWindow = window.URL.createObjectURL(response)
+        window.open(reportWindow)
+      },
+      error: (response: HttpErrorResponse) => this.messager.displayMessage(response.error.message, 'error')
+    })
+
+    this.subscriber.add(subscription)
   }
 }
