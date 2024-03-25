@@ -7,6 +7,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
+import { TableModule } from 'primeng/table';
 import { CartItemResponse } from '../../../common/dtos/cart/cart-item.response';
 import { SaleItemRequest } from '../../../common/dtos/sales/sale-item.request';
 import { SaleRequest } from '../../../common/dtos/sales/sale.request';
@@ -20,7 +21,7 @@ import { SaleService } from '../../../core/services/sale.service';
 @Component({
   selector: 'app-insert',
   standalone: true,
-  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe, TableModule],
   templateUrl: './insert-sale.component.html',
   styleUrl: './insert-sale.component.css'
 })
