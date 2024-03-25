@@ -7,6 +7,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
+import { TableModule } from 'primeng/table';
 import { CartItemResponse } from '../../../common/dtos/cart/cart-item.response';
 import { SaleItemRequest } from '../../../common/dtos/sales/sale-item.request';
 import { SaleRequest } from '../../../common/dtos/sales/sale.request';
@@ -14,19 +15,22 @@ import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
 import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { Product } from '../../../core/models/product';
+import { Sale } from '../../../core/models/sale';
 import { ProductService } from '../../../core/services/product.service';
+import { ReportService } from '../../../core/services/report.service';
 import { SaleService } from '../../../core/services/sale.service';
 
 @Component({
   selector: 'app-insert',
   standalone: true,
-  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe, TableModule],
   templateUrl: './insert-sale.component.html',
   styleUrl: './insert-sale.component.css'
 })
 export class InsertSaleComponent implements OnInit, OnDestroy {
   protected saleService = inject(SaleService)
   protected productService = inject(ProductService)
+  protected reportService = inject(ReportService)
   protected subscriber = inject(SubscriptionHelper)
   protected messager = inject(MessageHelper)
   protected loader = inject(LoadingHelper)
@@ -100,10 +104,12 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
     }
 
     const subscription = this.saleService.save(dto).subscribe({
-      next: () => {
+      next: (sale: Sale) => {
         this.messager.displayMessage('Venda cadastrada com sucesso!', 'success')
         this.cartForm.reset()
+        this.saleForm.reset()
         this.purchaseCart = []
+        this.generateSaleReport(sale)
       },
       error: (response: HttpErrorResponse) => {
         this.messager.displayMessage(response.error.message, 'error')
@@ -160,5 +166,17 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
     this.purchaseCart = updatedSaleItems;
 
     this.calculateSubTotal()
+  }
+
+  protected generateSaleReport(sale: Sale): void {
+    const subscription = this.reportService.generateSaleReport(sale).subscribe({
+      next: (response: Blob) => {
+        const reportWindow = window.URL.createObjectURL(response)
+        window.open(reportWindow)
+      },
+      error: (response: HttpErrorResponse) => this.messager.displayMessage(response.error.message, 'error')
+    })
+
+    this.subscriber.add(subscription)
   }
 }
