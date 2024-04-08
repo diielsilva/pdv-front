@@ -29,4 +29,13 @@ export class ReportService {
       }
     })
   }
+
+  public generateGoodsReport(): Observable<Blob> {
+    return this.httpClient.get<Blob>(`${this.baseUrl}/goods`, {
+      responseType: 'blob' as 'json', headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/pdf'
+      }
+    })
+  }
 }

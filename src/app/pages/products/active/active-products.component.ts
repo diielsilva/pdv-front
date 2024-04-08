@@ -15,6 +15,7 @@ import { SubscriptionHelper } from '../../../common/helpers/subscription.helper'
 import { Product } from '../../../core/models/product';
 import { ProductService } from '../../../core/services/product.service';
 import { Pageable } from '../../../core/utils/pageable';
+import { ReportService } from '../../../core/services/report.service';
 
 @Component({
   selector: 'app-active-products',
@@ -25,6 +26,7 @@ import { Pageable } from '../../../core/utils/pageable';
 })
 export class ActiveProductsComponent implements OnInit, OnDestroy {
   protected productService = inject(ProductService)
+  protected reportService = inject(ReportService)
   protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
   protected messager = inject(MessageHelper)
@@ -50,6 +52,19 @@ export class ActiveProductsComponent implements OnInit, OnDestroy {
     })
 
     this.subscriber.add(subscription)
+  }
+
+  protected generateGoodsReport(): void {
+    const subscription = this.reportService.generateGoodsReport().subscribe({
+      next: (respose: Blob) => {
+        const reportWindow = window.URL.createObjectURL(respose)
+        window.open(reportWindow)
+      },
+      error: (response: HttpErrorResponse) => this.messager.displayMessage(response.error.message, 'error')
+    })
+
+    this.subscriber.add(subscription)
+
   }
 
   protected shouldRefreshPage(shouldRefresh: boolean): void {
