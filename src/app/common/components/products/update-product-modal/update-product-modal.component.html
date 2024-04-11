@@ -1,0 +1,22 @@
+<p-dialog [(visible)]="isModalVisible" [modal]="true" [draggable]="false" (onHide)="closeUpdateModal()"
+    header="Editar Produto">
+    <form [formGroup]="updateForm">
+        <div class="mb-2">
+            <input pInputText formControlName="description" placeholder="Descrição">
+        </div>
+
+        <div class="mb-2">
+            <p-inputNumber formControlName="amount" placeholder="Quantidade" [maxFractionDigits]="0"
+                [min]="0"></p-inputNumber>
+        </div>
+
+        <div class="mb-2">
+            <p-inputNumber formControlName="price" placeholder="Preço" [minFractionDigits]="2" [maxFractionDigits]="2"
+                [min]="0"></p-inputNumber>
+        </div>
+
+        <p-button label="Editar" (onClick)="updateProduct()"
+            [disabled]="loadingHelper.isUnderLoading() || updateForm.invalid" [rounded]="true"
+            styleClass="w-full"></p-button>
+    </form>
+</p-dialog>

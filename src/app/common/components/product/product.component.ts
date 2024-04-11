@@ -14,11 +14,12 @@ import { ProductRequest } from '../../dtos/products/product.request';
 import { LoadingHelper } from '../../helpers/loading.helper';
 import { MessageHelper } from '../../helpers/message.helper';
 import { SubscriptionHelper } from '../../helpers/subscription.helper';
+import { ProductCardContentComponent } from '../products/product-card-content/product-card-content.component';
 
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [ReactiveFormsModule, PanelModule, ButtonModule, CurrencyPipe, DatePipe, DialogModule, InputTextModule, InputNumberModule],
+  imports: [ReactiveFormsModule, PanelModule, ButtonModule, CurrencyPipe, DatePipe, DialogModule, InputTextModule, InputNumberModule, ProductCardContentComponent],
   templateUrl: './product.component.html',
   styleUrl: './product.component.css'
 })

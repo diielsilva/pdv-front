@@ -1,13 +1,10 @@
 <!--Product Panel-->
 <p-panel header="Produto" styleClass="mb-2">
 
-    <div>Código: {{ product.id }}</div>
-    <div>Descrição: {{ product.description }}</div>
-    <div>Quantidade em Estoque: {{ product.amount }}</div>
-    <div>Preço: {{ product.price | currency }}</div>
-    <div>Data de Criação: {{ product.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+    <app-product-card-content [product]="product"></app-product-card-content>
+ 
     @if (product.deletedAt !== null && (authService.isUserAnAdmin() || authService.isUserAManager())) {
-    <div>Data de Remoção: {{ product.deletedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+    
 
     <!--Product Footer With Reactivate Option-->
     <ng-template pTemplate="footer">
