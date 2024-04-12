@@ -12,4 +12,7 @@
 
     }
 
+    <app-paginator [currentPage]="actualPage" [totalOfPages]="totalOfPages"
+        (notifyParentToChangePage)="changePage($event)"></app-paginator>
+
 </p-panel>

@@ -18,7 +18,7 @@ import { Pageable } from '../../../core/utils/pageable';
 @Component({
   selector: 'app-active-products',
   standalone: true,
-  imports: [PanelModule, ButtonModule, PaginatorComponent, ActiveProductCardComponent, UpdateProductModalComponent],
+  imports: [PanelModule, ButtonModule, PaginatorComponent, ActiveProductCardComponent, UpdateProductModalComponent, PaginatorComponent],
   templateUrl: './active-products.component.html',
   styleUrl: './active-products.component.css'
 })
@@ -26,6 +26,8 @@ export class ActiveProductsComponent implements OnInit {
   protected products: Product[] = [];
   protected updateModalsPerProduct: boolean[] = [];
   protected selectedProduct: number = -1;
+  protected actualPage: number = 1;
+  protected totalOfPages: number = 1;
 
   public constructor(
     protected productService: ProductService,
@@ -49,13 +51,25 @@ export class ActiveProductsComponent implements OnInit {
     this.updateModalsPerProduct[this.selectedProduct] = false;
   }
 
+  protected changePage(page: number): void {
+    this.actualPage = page;
+    this.findActiveProducts();
+  }
+
   protected findActiveProducts(): void {
-    this.productService.findActive(1).subscribe({
+    this.productService.findActive(this.actualPage).subscribe({
       next: (response: Pageable<Product>) => {
         this.selectedProduct = -1;
         this.updateModalsPerProduct = [];
         this.products = response.content;
         this.products.forEach(() => this.updateModalsPerProduct.push(false));
+        this.totalOfPages = response.totalPages;
+
+        if (this.actualPage > this.totalOfPages) {
+          this.actualPage = this.totalOfPages;
+          this.findActiveProducts();
+        }
+
       }
     });
   }
