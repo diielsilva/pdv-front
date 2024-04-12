@@ -9,18 +9,18 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './paginator.component.css'
 })
 export class PaginatorComponent {
-  @Input({ required: true }) public currentPage!: number
-  @Input({ required: true }) public totalOfPages!: number
-  @Output() public changePageEvent = new EventEmitter<number>()
+  @Input({ required: true }) public currentPage!: number;
+  @Input({ required: true }) public totalOfPages!: number;
+  @Output() public notifyParentToChangePage: EventEmitter<number> = new EventEmitter<number>();
 
-  public incrementPage(): void {
-    this.currentPage++
-    this.changePageEvent.emit(this.currentPage)
+  public nextPage(): void {
+    this.currentPage++;
+    this.notifyParentToChangePage.emit(this.currentPage);
   }
 
-  public decrementPage(): void {
-    this.currentPage--
-    this.changePageEvent.emit(this.currentPage)
+  public previousPage(): void {
+    this.currentPage--;
+    this.notifyParentToChangePage.emit(this.currentPage);
   }
 
 }
