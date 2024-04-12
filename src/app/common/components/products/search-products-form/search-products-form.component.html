@@ -1,0 +1,7 @@
+<form [formGroup]="searchForm">
+    <div class="flex justify-content-center">
+        <input pInputText formControlName="description" placeholder="Descrição...">
+        <p-button icon="pi pi-search" [rounded]="true" [disabled]="loadingHelper.isUnderLoading() || searchForm.invalid"
+            styleClass="ml-2 cursor-pointer" (onClick)="searchProduct()"></p-button>
+    </div>
+</form>
