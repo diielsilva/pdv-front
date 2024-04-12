@@ -104,6 +104,7 @@ export class SearchProductComponent implements OnDestroy {
   protected deleteProduct(id: number): void {
     this.productService.delete(id).subscribe({
       next: () => {
+        this.messageHelper.displayMessage('Produto removido com successo!', 'success');
         this.searchProducts(this.searchedTerm);
       }
     })
