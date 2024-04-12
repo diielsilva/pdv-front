@@ -10,6 +10,7 @@ import { tokenInterceptor } from './core/interceptors/token.interceptor';
 
 import { registerLocaleData } from '@angular/common';
 import ptBr from '@angular/common/locales/pt';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 
 registerLocaleData(ptBr)
 
@@ -17,7 +18,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([loadingInterceptor, tokenInterceptor])
+      withInterceptors([loadingInterceptor, tokenInterceptor, errorInterceptor])
     ),
     provideAnimations(),
     MessageService,
