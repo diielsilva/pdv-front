@@ -1,20 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
+import { take } from 'rxjs';
 import { PaginatorComponent } from '../../../common/components/paginator/paginator.component';
 import { ActiveProductCardComponent } from '../../../common/components/products/active-product-card/active-product-card.component';
 import { UpdateProductModalComponent } from '../../../common/components/products/update-product-modal/update-product-modal.component';
 import { ProductRequest } from '../../../common/dtos/products/product.request';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
-import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { Product } from '../../../core/models/product';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService } from '../../../core/services/product.service';
 import { ReportService } from '../../../core/services/report.service';
 import { Pageable } from '../../../core/utils/pageable';
 
-//TODO IMPLEMENTS PAGINATION AGAIN AND ADD SUBSCRIPTION CLEAN
 @Component({
   selector: 'app-active-products',
   standalone: true,
@@ -26,14 +25,13 @@ export class ActiveProductsComponent implements OnInit {
   protected products: Product[] = [];
   protected updateModalsPerProduct: boolean[] = [];
   protected selectedProduct: number = -1;
-  protected actualPage: number = 1;
+  protected currentPage: number = 1;
   protected totalOfPages: number = 1;
 
   public constructor(
     protected productService: ProductService,
     protected reportService: ReportService,
     protected authService: AuthService,
-    protected subscriptionHelper: SubscriptionHelper,
     protected loadingHelper: LoadingHelper,
     protected messageHelper: MessageHelper
   ) { }
@@ -47,17 +45,17 @@ export class ActiveProductsComponent implements OnInit {
     this.selectedProduct = selectedProduct;
   }
 
-  protected closeModalFromSelectedProduct(): void {
+  protected closeUpdateModal(): void {
     this.updateModalsPerProduct[this.selectedProduct] = false;
   }
 
   protected changePage(page: number): void {
-    this.actualPage = page;
+    this.currentPage = page;
     this.findActiveProducts();
   }
 
   protected findActiveProducts(): void {
-    this.productService.findActive(this.actualPage).subscribe({
+    this.productService.findActive(this.currentPage).pipe(take(1)).subscribe({
       next: (response: Pageable<Product>) => {
         this.selectedProduct = -1;
         this.updateModalsPerProduct = [];
@@ -65,8 +63,8 @@ export class ActiveProductsComponent implements OnInit {
         this.products.forEach(() => this.updateModalsPerProduct.push(false));
         this.totalOfPages = response.totalPages;
 
-        if (this.actualPage > this.totalOfPages) {
-          this.actualPage = this.totalOfPages;
+        if (this.currentPage > this.totalOfPages) {
+          this.currentPage = this.totalOfPages;
           this.findActiveProducts();
         }
 
@@ -75,7 +73,7 @@ export class ActiveProductsComponent implements OnInit {
   }
 
   protected updateProduct(dto: ProductRequest): void {
-    this.productService.update(this.products[this.selectedProduct].id, dto).subscribe({
+    this.productService.update(this.products[this.selectedProduct].id, dto).pipe(take(1)).subscribe({
       next: () => {
         this.messageHelper.displayMessage('Produto editado com sucesso!', 'success');
         this.findActiveProducts();
@@ -84,12 +82,21 @@ export class ActiveProductsComponent implements OnInit {
   }
 
   protected deleteProduct(id: number): void {
-    this.productService.delete(id).subscribe({
+    this.productService.delete(id).pipe(take(1)).subscribe({
       next: () => {
         this.messageHelper.displayMessage('Produto removido com sucesso!', 'success');
         this.findActiveProducts();
       }
-    })
+    });
+  }
+
+  protected generateInventoryReport(): void {
+    this.reportService.generateGoodsReport().pipe(take(1)).subscribe({
+      next: (response: Blob) => {
+        const reportWindow = window.URL.createObjectURL(response);
+        window.open(reportWindow);
+      }
+    });
   }
 
 }

@@ -1,4 +1,12 @@
-<p-panel header="Produtos Ativos" styleClass="mt-2">
+<p-panel styleClass="mt-2">
+
+    <ng-template pTemplate="header">
+        <div class="flex justify-content-between w-full">
+            <p class="font-bold">Produtos Ativos</p>
+            <p-button (onClick)="generateInventoryReport()" icon="pi pi-file-export"
+                [disabled]="loadingHelper.isUnderLoading()" [rounded]="true" styleClass="cursor-pointer"></p-button>
+        </div>
+    </ng-template>
 
     @for (product of products; track $index) {
     <app-active-product-card [product]="product"
@@ -8,11 +16,11 @@
 
     <app-update-product-modal [product]="product" [isModalVisible]="updateModalsPerProduct[$index]"
         (notifyParentToUpdateProduct)="updateProduct($event)"
-        (notifyParentToCloseUpdateModal)="closeModalFromSelectedProduct()"></app-update-product-modal>
+        (notifyParentToCloseUpdateModal)="closeUpdateModal()"></app-update-product-modal>
 
     }
 
-    <app-paginator [currentPage]="actualPage" [totalOfPages]="totalOfPages"
+    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
         (notifyParentToChangePage)="changePage($event)"></app-paginator>
 
 </p-panel>
