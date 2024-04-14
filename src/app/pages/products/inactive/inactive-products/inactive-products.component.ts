@@ -1,12 +1,11 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
+import { take } from 'rxjs';
 import { PaginatorComponent } from '../../../../common/components/paginator/paginator.component';
-import { ProductComponent } from '../../../../common/components/product/product.component';
+import { InactiveProductCardComponent } from '../../../../common/components/products/inactive-product-card/inactive-product-card.component';
 import { LoadingHelper } from '../../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../../common/helpers/message.helper';
-import { SubscriptionHelper } from '../../../../common/helpers/subscription.helper';
 import { Product } from '../../../../core/models/product';
 import { ProductService } from '../../../../core/services/product.service';
 import { Pageable } from '../../../../core/utils/pageable';
@@ -14,53 +13,50 @@ import { Pageable } from '../../../../core/utils/pageable';
 @Component({
   selector: 'app-inactive-products',
   standalone: true,
-  imports: [PaginatorComponent, ProductComponent, PanelModule, ButtonModule],
+  imports: [PaginatorComponent, PanelModule, ButtonModule, InactiveProductCardComponent],
   templateUrl: './inactive-products.component.html',
   styleUrl: './inactive-products.component.css'
 })
-export class InactiveProductsComponent implements OnInit, OnDestroy {
-  protected productService = inject(ProductService)
-  protected subscriber = inject(SubscriptionHelper)
-  protected loader = inject(LoadingHelper)
-  protected messager = inject(MessageHelper)
-  protected products: Product[] = []
-  protected currentPage = 1
-  protected totalOfPages = 1
+export class InactiveProductsComponent implements OnInit {
+  protected products: Product[] = [];
+  protected currentPage: number = 1;
+  protected totalOfPages: number = 1;
+
+  public constructor(
+    protected productService: ProductService,
+    protected loadingHelper: LoadingHelper,
+    protected messageHelper: MessageHelper
+  ) { }
 
   public ngOnInit(): void {
-    this.findInactiveProducts()
+    this.findInactiveProducts();
   }
 
-  public ngOnDestroy(): void {
-    this.subscriber.clean()
+  protected changePage(currentPage: number): void {
+    this.currentPage = currentPage;
+    this.findInactiveProducts();
   }
 
   protected findInactiveProducts(): void {
-    const subscription = this.productService.findInactive(this.currentPage).subscribe({
+    this.productService.findInactive(this.currentPage).pipe(take(1)).subscribe({
       next: (response: Pageable<Product>) => {
-        this.totalOfPages = response.totalPages
-        this.products = response.content
+        this.totalOfPages = response.totalPages;
+        this.products = response.content;
+
+        if (this.currentPage > this.totalOfPages) {
+          this.currentPage = this.totalOfPages;
+          this.findInactiveProducts();
+        }
       },
-      error: (response: HttpErrorResponse) => {
-        this.messager.displayMessage(response.error.response, 'error')
-        this.resetPaginator()
+    });
+  }
+
+  protected reactivateProduct(id: number): void {
+    this.productService.reactivate(id).pipe(take(1)).subscribe({
+      next: () => {
+        this.messageHelper.displayMessage('Produto reativado com sucesso!', 'success');
+        this.findInactiveProducts();
       }
-    })
-
-    this.subscriber.add(subscription)
-  }
-
-  protected shouldRefreshPage(shouldRefresh: boolean): void {
-    if (shouldRefresh) {
-      this.findInactiveProducts()
-    } else {
-      this.resetPaginator()
-    }
-  }
-
-  protected resetPaginator(): void {
-    this.currentPage = 1
-    this.totalOfPages = 1
-    this.products = []
+    });
   }
 }

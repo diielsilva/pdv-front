@@ -1,13 +1,15 @@
 <!--Products Panel-->
 <p-panel header="Produtos Inativos" styleClass="mt-2">
     @for (product of products; track $index) {
-    <app-product [product]="product" (shouldRefreshParentComponent)="shouldRefreshPage($event)"></app-product>
+    <app-inactive-product-card [product]="product"
+        (notifyParentToReactivateProduct)="reactivateProduct($event)"></app-inactive-product-card>
     } @empty {
     <dir class="text-center">Não há produtos inativos!</dir>
     }
 
     <!--Paginator-->
-    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"></app-paginator>
+    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
+        (notifyParentToChangePage)="changePage($event)"></app-paginator>
     <!--End Paginator-->
 
 </p-panel>

@@ -1,0 +1,20 @@
+<div>
+    <span class="font-bold">Código: </span> {{ product.id }}
+</div>
+<div>
+    <span class="font-bold">Descrição: </span> {{ product.description }}
+</div>
+<div>
+    <span class="font-bold">Estoque: </span> {{ product.amount }}
+</div>
+<div>
+    <span class="font-bold">Preço: </span> {{ product.price | currency }}
+</div>
+<div>
+    <span class="font-bold">Criado Em: </span> {{ product.createdAt | date: 'dd/MM/yy HH:mm' }}
+</div>
+@if (product.deletedAt !== null) {
+<div>
+    <span class="font-bold">Removido Em: </span> {{ product.deletedAt | date: 'dd/MM/yy HH:mm' }}
+</div>
+}

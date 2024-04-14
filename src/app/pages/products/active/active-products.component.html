@@ -1,10 +1,26 @@
-<p-panel header="Produtos Ativos" styleClass="mt-2">
+<p-panel styleClass="mt-2">
+
+    <ng-template pTemplate="header">
+        <div class="flex justify-content-between w-full">
+            <p class="font-bold">Produtos Ativos</p>
+            <p-button (onClick)="generateInventoryReport()" icon="pi pi-file-export"
+                [disabled]="loadingHelper.isUnderLoading()" [rounded]="true" styleClass="cursor-pointer"></p-button>
+        </div>
+    </ng-template>
+
     @for (product of products; track $index) {
-    <app-product [product]="product" (shouldRefreshParentComponent)="shouldRefreshPage($event)"></app-product>
-    } @empty {
-    <div class="text-center">Não há produtos cadastrados!</div>
+    <app-active-product-card [product]="product"
+        [shouldDisplayActionButtons]="authService.isUserAnAdmin() || authService.isUserAManager()"
+        (notifyParentToDisplayUpdateModal)="displayUpdateModal($index)"
+        (notifyParentToDeleteProduct)="deleteProduct($event)"></app-active-product-card>
+
+    <app-update-product-modal [product]="product" [isModalVisible]="updateModalsPerProduct[$index]"
+        (notifyParentToUpdateProduct)="updateProduct($event)"
+        (notifyParentToCloseUpdateModal)="closeUpdateModal()"></app-update-product-modal>
+
     }
-    <p-button label="Gerar Relatório" styleClass="w-full mb-2" (onClick)="generateGoodsReport()"></p-button>
+
     <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
-        (changePageEvent)="handlePageChange($event)"></app-paginator>
+        (notifyParentToChangePage)="changePage($event)"></app-paginator>
+
 </p-panel>
