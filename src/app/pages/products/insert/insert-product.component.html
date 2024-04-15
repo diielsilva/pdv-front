@@ -2,7 +2,7 @@
 <p-panel header="Inserir Produto" styleClass="mt-2">
 
     <!--Insert Form-->
-    <form [formGroup]="insertForm">
+    <form [formGroup]="form">
         <div class="mb-2">
             <input pInputText formControlName="description" placeholder="Descrição" class="w-full" />
         </div>
@@ -17,8 +17,8 @@
                 placeholder="Preço" class="w-full" styleClass="w-full"></p-inputNumber>
         </div>
 
-        <p-button label="Cadastrar" (onClick)="insertProduct()"
-            [disabled]="loader.isUnderLoading() || insertForm.invalid" styleClass="w-full" [rounded]="true"></p-button>
+        <p-button label="Cadastrar" (onClick)="save()" [disabled]="loadingHelper.isUnderLoading() || form.invalid"
+            styleClass="w-full" [rounded]="true"></p-button>
     </form>
     <!--End Insert Form-->
 
