@@ -1,16 +1,16 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { SecurityService } from '../services/security.service';
 
-export const superUserGuard: CanActivateFn = (route, state) => {
-  const loginService = inject(AuthService)
-  const router = inject(Router)
+export const superUserGuard: CanActivateFn = () => {
+  const securityService = inject(SecurityService);
+  const router = inject(Router);
 
-  if (loginService.isUserAnAdmin() || loginService.isUserAManager()) {
-    return true
+  if (securityService.isSessionBelongsToAnAdmin() || securityService.isSessionBelongsToAManager()) {
+    return true;
   }
 
-  router.navigate([''])
+  router.navigate(['']);
 
   return false;
 };

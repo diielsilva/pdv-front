@@ -13,7 +13,7 @@ import { LoginResponse } from '../../../common/dtos/login/login.response';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
 import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
-import { AuthService } from '../../../core/services/auth.service';
+import { SecurityService } from '../../../core/services/security.service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +23,7 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  protected authService = inject(AuthService)
+  protected securityService = inject(SecurityService);
   protected router = inject(Router)
   protected subscriber = inject(SubscriptionHelper)
   protected loader = inject(LoadingHelper)
@@ -36,7 +36,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: new FormControl<string | null>(null, { validators: Validators.required })
     })
 
-    this.authService.logout()
+    this.securityService.logout()
   }
 
   public ngOnDestroy(): void {
@@ -46,16 +46,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   protected attemptAuthenticate(): void {
     const dto: LoginRequest = { login: this.loginForm.controls['login'].value, password: this.loginForm.controls['password'].value }
 
-    const subscription = this.authService.login(dto)
+    const subscription = this.securityService.login(dto)
       .subscribe({
         next: (response: LoginResponse) => {
-          this.authService.onSuccessfulLogin(response)
+          this.securityService.initSession(response)
           this.router.navigate(['/pdv'])
-        },
-        error: (response: HttpErrorResponse) => {
-          this.messager.displayMessage(response.error.message, 'error')
         }
-      })
+      });
 
     this.subscriber.add(subscription)
   }

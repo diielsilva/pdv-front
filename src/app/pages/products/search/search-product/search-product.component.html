@@ -11,7 +11,7 @@
     <div>
         @for (product of products; track $index) {
         <app-active-product-card [product]="product"
-            [shouldDisplayActionButtons]="authService.isUserAnAdmin() || authService.isUserAManager()"
+            [shouldDisplayActionButtons]="securityService.isSessionBelongsToAnAdmin()|| securityService.isSessionBelongsToAManager()"
             (notifyParentToDisplayUpdateModal)="displayUpdateModal($index)"
             (notifyParentToDeleteProduct)="deleteProduct($event)"></app-active-product-card>
 

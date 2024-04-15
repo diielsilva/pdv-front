@@ -9,9 +9,9 @@ import { ProductRequest } from '../../../common/dtos/products/product.request';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
 import { Product } from '../../../core/models/product';
-import { AuthService } from '../../../core/services/auth.service';
 import { ProductService } from '../../../core/services/product.service';
 import { ReportService } from '../../../core/services/report.service';
+import { SecurityService } from '../../../core/services/security.service';
 import { Pageable } from '../../../core/utils/pageable';
 
 @Component({
@@ -31,7 +31,7 @@ export class ActiveProductsComponent implements OnInit {
   public constructor(
     protected productService: ProductService,
     protected reportService: ReportService,
-    protected authService: AuthService,
+    protected securityService: SecurityService,
     protected loadingHelper: LoadingHelper,
     protected messageHelper: MessageHelper
   ) { }

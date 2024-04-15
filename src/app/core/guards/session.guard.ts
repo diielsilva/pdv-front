@@ -1,15 +1,16 @@
 import { inject } from '@angular/core';
 import { CanActivateChildFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { SecurityService } from '../services/security.service';
 
-export const sessionGuard: CanActivateChildFn = (route, state) => {
-  const loginService = inject(AuthService)
-  const router = inject(Router)
+export const sessionGuard: CanActivateChildFn = () => {
+  const securityService = inject(SecurityService);
+  const router = inject(Router);
 
-  if (loginService.hasOnlineUser()) {
-    return true
+  if (securityService.hasActiveSession()) {
+    return true;
   }
 
-  router.navigate([''])
-  return false
+  router.navigate(['']);
+  
+  return false;
 };
