@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
-import { AuthService } from '../../../core/services/auth.service';
+import { SecurityService } from '../../../core/services/security.service';
 
 @Component({
   selector: 'app-header',
@@ -13,7 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class HeaderComponent {
   protected router = inject(Router)
-  protected authService = inject(AuthService)
+  protected securityService = inject(SecurityService)
   protected commonUserItems: MenuItem[] = [
     {
       label: 'Produtos',

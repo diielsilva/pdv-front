@@ -9,7 +9,7 @@ import { LoadingHelper } from '../../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../../common/helpers/message.helper';
 import { SubscriptionHelper } from '../../../../common/helpers/subscription.helper';
 import { Product } from '../../../../core/models/product';
-import { AuthService } from '../../../../core/services/auth.service';
+import { SecurityService } from '../../../../core/services/security.service';
 import { ProductService } from '../../../../core/services/product.service';
 import { Pageable } from '../../../../core/utils/pageable';
 
@@ -32,7 +32,7 @@ export class SearchProductComponent implements OnDestroy {
 
   public constructor(
     protected productService: ProductService,
-    protected authService: AuthService,
+    protected securityService: SecurityService,
     protected subscriptionHelper: SubscriptionHelper,
     protected loadingHelper: LoadingHelper,
     protected messageHelper: MessageHelper
