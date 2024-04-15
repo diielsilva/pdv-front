@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { SaleDetailsResponse } from '../../common/dtos/sales/sale-details.response';
 import { SaleRequest } from '../../common/dtos/sales/sale.request';
-import { constants } from '../constants/constants';
 import { Sale } from '../models/sale';
 import { Pageable } from '../utils/pageable';
 
@@ -11,7 +11,7 @@ import { Pageable } from '../utils/pageable';
   providedIn: 'root'
 })
 export class SaleService {
-  protected baseUrl = `${constants.api}/sales`
+  protected baseUrl = `${environment.api}/sales`
   protected httpClient = inject(HttpClient)
 
   public save(saleRequest: SaleRequest): Observable<Sale> {

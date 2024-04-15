@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { constants } from '../constants/constants';
+import { environment } from '../../../environments/environment';
 import { Sale } from '../models/sale';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReportService {
-  protected baseUrl = `${constants.api}/reports`
+  protected baseUrl = `${environment.api}/reports`
   protected httpClient = inject(HttpClient)
 
   public generateSaleReport(sale: Sale): Observable<Blob> {

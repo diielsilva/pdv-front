@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { LoginRequest } from '../../common/dtos/login/login.request';
 import { LoginResponse } from '../../common/dtos/login/login.response';
-import { constants } from '../constants/constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = `${constants.api}/login`
+  private baseUrl = `${environment.api}/login`
   private httpClient = inject(HttpClient)
 
   public login(dto: LoginRequest): Observable<LoginResponse> {

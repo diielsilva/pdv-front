@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { ProductRequest } from '../../common/dtos/products/product.request';
-import { constants } from '../constants/constants';
 import { Product } from '../models/product';
 import { Pageable } from '../utils/pageable';
 
@@ -10,7 +10,7 @@ import { Pageable } from '../utils/pageable';
   providedIn: 'root'
 })
 export class ProductService {
-  private baseUrl = `${constants.api}/products`
+  private baseUrl = `${environment.api}/products`
   private httpClient = inject(HttpClient)
 
   public save(dto: ProductRequest): Observable<Product> {
