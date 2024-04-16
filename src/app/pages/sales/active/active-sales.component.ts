@@ -1,71 +1,85 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { PaginatorModule } from 'primeng/paginator';
+import { Component, OnInit } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
+import { take } from 'rxjs';
 import { PaginatorComponent } from '../../../common/components/paginator/paginator.component';
-import { SaleComponent } from '../../../common/components/sale/sale.component';
+import { ActiveSaleCardComponent } from '../../../common/components/sales/active-sale-card/active-sale-card.component';
+import { SaleDetailsModalComponent } from '../../../common/components/sales/sale-details-modal/sale-details-modal.component';
+import { SaleDetailsResponse } from '../../../common/dtos/sales/sale-details.response';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
-import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { Sale } from '../../../core/models/sale';
+import { ReportService } from '../../../core/services/report.service';
 import { SaleService } from '../../../core/services/sale.service';
 import { Pageable } from '../../../core/utils/pageable';
 
 @Component({
   selector: 'app-active-sales',
   standalone: true,
-  imports: [PaginatorModule, PanelModule, SaleComponent, PaginatorComponent],
+  imports: [PanelModule, PaginatorComponent, ActiveSaleCardComponent, SaleDetailsModalComponent],
   templateUrl: './active-sales.component.html',
   styleUrl: './active-sales.component.css'
 })
-export class ActiveSalesComponent implements OnInit, OnDestroy {
-  protected saleService = inject(SaleService)
-  protected subscriber = inject(SubscriptionHelper)
-  protected loader = inject(LoadingHelper)
-  protected messager = inject(MessageHelper)
-  protected currentPage = 1
-  protected totalOfPages = 1
-  protected sales: Sale[] = []
+export class ActiveSalesComponent implements OnInit {
+  protected sales: Sale[] = [];
+  protected modalsPerSale: boolean[] = [];
+  protected saleDetails?: SaleDetailsResponse;
+  protected currentPage: number = 1;
+  protected totalOfPages: number = 1;
+  protected selectedSale: number = -1;
+
+  public constructor(
+    protected saleService: SaleService,
+    protected reportService: ReportService,
+    protected loadingHelper: LoadingHelper,
+    protected messageHelper: MessageHelper
+  ) { }
 
   public ngOnInit(): void {
-    this.findActiveSales()
+    this.findActive();
   }
 
-  public ngOnDestroy(): void {
-    this.subscriber.clean()
+  protected displayModal(selectedSale: number): void {
+    this.selectedSale = selectedSale;
+    this.details();
   }
 
-  protected findActiveSales(): void {
-    const subscription = this.saleService.findActive(this.currentPage).subscribe({
+  protected closeModal(): void {
+    this.modalsPerSale[this.selectedSale] = false;
+  }
+
+  protected changePage(page: number): void {
+    this.currentPage = page;
+    this.findActive();
+  }
+
+  protected findActive(): void {
+    this.saleService.findActive(this.currentPage).pipe(take(1)).subscribe({
       next: (response: Pageable<Sale>) => {
-        this.totalOfPages = response.totalPages
-        this.sales = response.content
-      },
-      error: (response: HttpErrorResponse) => {
-        this.messager.displayMessage(response.error.message, 'error')
+        this.modalsPerSale = [];
+        this.totalOfPages = response.totalPages;
+        this.sales = response.content;
+        this.sales.forEach(() => this.modalsPerSale.push(false));
       }
-    })
-
-    this.subscriber.add(subscription)
+    });
   }
 
-  protected shouldRefreshPage(shouldRefresh: boolean): void {
-    if (shouldRefresh) {
-      this.findActiveSales()
-    } else {
-      this.resetPaginator()
-    }
+  protected details(): void {
+    this.saleService.details(this.sales[this.selectedSale].id).pipe(take(1)).subscribe({
+      next: (response: SaleDetailsResponse) => {
+        this.saleDetails = response;
+        this.modalsPerSale[this.selectedSale] = true;
+      }
+    });
   }
 
-  protected onPageChange(page: number): void {
-    this.currentPage = page
-    this.findActiveSales()
-  }
-
-  protected resetPaginator(): void {
-    this.currentPage = 1
-    this.totalOfPages = 1
-    this.sales = []
+  protected displayReport(id: number): void {
+    console.log('here')
+    this.reportService.generateSaleReport(id).pipe(take(1)).subscribe({
+      next: (response: Blob) => {
+        const reportWindow: string = window.URL.createObjectURL(response);
+        window.open(reportWindow);
+      }
+    });
   }
 
 }

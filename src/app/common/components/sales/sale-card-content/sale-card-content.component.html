@@ -1,0 +1,18 @@
+<div>
+    <span class="font-bold">Código: </span><span>{{ sale.id }}</span>
+</div>
+<div>
+    <span class="font-bold">Desconto: </span> <span>{{ sale.discount }}%</span>
+</div>
+<div>
+    <span class="font-bold">Total (Sem Desconto): </span> <span>{{ sale.total.toFixed(2) | currency }}</span>
+</div>
+<div>
+    <span class="font-bold">Forma de Pagamento: </span> <span>{{ sale.paymentMethod | paymentMethod }}</span>
+</div>
+<div>
+    <span class="font-bold">Criada Em: </span> <span>{{ sale.createdAt | date: 'dd/MM/yy HH:mm' }}</span>
+</div>
+@if (sale.deletedAt !== null) {
+<span class="font-bold">Removido Em: </span> <span>{{ sale.deletedAt | date: 'dd/MM/yy HH:mm' }}</span>
+}

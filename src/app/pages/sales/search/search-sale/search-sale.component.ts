@@ -1,13 +1,13 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
 import { PanelModule } from 'primeng/panel';
-import { SaleComponent } from '../../../../common/components/sale/sale.component';
+import { take } from 'rxjs';
+import { ActiveSaleCardComponent } from '../../../../common/components/sales/active-sale-card/active-sale-card.component';
+import { SaleDetailsModalComponent } from '../../../../common/components/sales/sale-details-modal/sale-details-modal.component';
+import { SearchSalesFormComponent } from '../../../../common/components/sales/search-sales-form/search-sales-form.component';
+import { SaleDetailsResponse } from '../../../../common/dtos/sales/sale-details.response';
 import { LoadingHelper } from '../../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../../common/helpers/message.helper';
-import { SubscriptionHelper } from '../../../../common/helpers/subscription.helper';
 import { Sale } from '../../../../core/models/sale';
 import { ReportService } from '../../../../core/services/report.service';
 import { SaleService } from '../../../../core/services/sale.service';
@@ -15,61 +15,73 @@ import { SaleService } from '../../../../core/services/sale.service';
 @Component({
   selector: 'app-search-sale',
   standalone: true,
-  imports: [ReactiveFormsModule, PanelModule, ButtonModule, CalendarModule, SaleComponent],
+  imports: [PanelModule, ButtonModule, SearchSalesFormComponent, ActiveSaleCardComponent, SaleDetailsModalComponent],
   templateUrl: './search-sale.component.html',
   styleUrl: './search-sale.component.css'
 })
-export class SearchSaleComponent implements OnInit, OnDestroy {
-  protected saleService = inject(SaleService)
-  protected reportService = inject(ReportService)
-  protected subscriber = inject(SubscriptionHelper)
-  protected loader = inject(LoadingHelper)
-  protected messager = inject(MessageHelper)
-  protected searchForm!: FormGroup
-  protected searchedDate!: Date
-  protected sales: Sale[] = []
+export class SearchSaleComponent {
+  protected sales: Sale[] = [];
+  protected modalsPerSale: boolean[] = [];
+  protected saleDetails?: SaleDetailsResponse;
+  protected searchedDate!: Date;
+  protected selectedSale: number = -1;
 
-  public ngOnInit(): void {
-    this.searchForm = new FormGroup({
-      date: new FormControl<Date | null>(null, [Validators.required])
-    })
+  public constructor(
+    protected saleService: SaleService,
+    protected reportService: ReportService,
+    protected loadingHelper: LoadingHelper,
+    protected messageHelper: MessageHelper
+  ) { }
+
+  protected displayModal(selectedSale: number): void {
+    this.selectedSale = selectedSale;
+    this.details();
   }
 
-  public ngOnDestroy(): void {
-    this.subscriber.clean()
+  protected closeModal(): void {
+    this.modalsPerSale[this.selectedSale] = false;
   }
 
-  protected searchSales(): void {
-    this.searchedDate = this.searchForm.controls['date'].value
-
-    const subscription = this.saleService.findActiveByDate(this.searchedDate).subscribe({
+  protected search(date: Date): void {
+    this.searchedDate = date;
+    this.saleService.findActiveByDate(date).pipe(take(1)).subscribe({
       next: (response: Sale[]) => {
-        if (response.length === 0) {
-          this.messager.displayMessage('Não foram encontradas vendas com a data selecionada', 'error')
-        } else {
-          this.sales = response
-        }
-      },
-      error: (response: HttpErrorResponse) => {
-        this.messager.displayMessage(response.error.message, 'error')
-      }
-    })
+        this.modalsPerSale = [];
+        this.sales = response;
+        this.sales.forEach(() => this.modalsPerSale.push(false));
 
-    this.subscriber.add(subscription)
+        if (this.sales.length === 0) {
+          this.messageHelper.displayMessage('Não foram encontradas vendas com a data selecionada', 'error');
+        }
+      }
+    });
   }
 
-  protected profitReport(): void {
-    const subscription = this.reportService.generateReportByDate(this.searchedDate).subscribe({
+  protected details(): void {
+    this.saleService.details(this.sales[this.selectedSale].id).pipe(take(1)).subscribe({
+      next: (response: SaleDetailsResponse) => {
+        this.saleDetails = response;
+        this.modalsPerSale[this.selectedSale] = true;
+      }
+    });
+  }
+
+  protected individualReport(id: number): void {
+    this.reportService.generateSaleReport(id).pipe(take(1)).subscribe({
+      next: (response: Blob) => {
+        const reportWindow: string = window.URL.createObjectURL(response);
+        window.open(reportWindow);
+      }
+    });
+  }
+
+  protected todaysReport(): void {
+    this.reportService.generateReportByDate(this.searchedDate).subscribe({
       next: (response: Blob) => {
         const reportWindow = window.URL.createObjectURL(response)
         window.open(reportWindow)
       },
-      error: (response: HttpErrorResponse) => {
-        this.messager.displayMessage(response.error.message, 'error')
-      }
-    })
-
-    this.subscriber.add(subscription)
+    });
   }
 
 }

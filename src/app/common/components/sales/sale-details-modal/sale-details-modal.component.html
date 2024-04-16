@@ -1,0 +1,21 @@
+<p-dialog [(visible)]="isVisible" (onHide)="notifyParentToCloseModal.emit()" [modal]="true" [draggable]="false">
+    <div class="mb-2">
+        <span class="font-bold">Vendedor: </span> <span>{{ sale?.sellerName }}</span>
+    </div>
+
+    @for (item of sale?.items; track $index) {
+    <div>
+        <div>
+            <span class="font-bold">Descrição: </span> <span>{{ item.productDescription }}</span>
+        </div>
+        <div>
+            <span class="font-bold">Quantidade: </span> <span>{{ item.amount }}</span>
+        </div>
+        <div>
+            <span class="font-bold">Preço: </span> <span>{{ item.price.toFixed(2) | currency }}</span>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+    }
+</p-dialog>

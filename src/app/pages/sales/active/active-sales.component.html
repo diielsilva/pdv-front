@@ -1,14 +1,17 @@
 <!--Sales Panel-->
-<p-panel header="Vendas Ativas">
+<p-panel header="Vendas Ativas" styleClass="mt-2">
     @for (sale of sales; track $index) {
-    <app-sale [sale]="sale" (shouldRefreshParentComponent)="shouldRefreshPage($event)"></app-sale>
+    <app-active-sale-card [sale]="sale" (notifyParentToDisplayDetails)="displayModal($index)"
+        (notifyParentToDisplayReport)="displayReport($event)"></app-active-sale-card>
+    <app-sale-details-modal [isVisible]="modalsPerSale[$index]" [sale]="saleDetails"
+        (notifyParentToCloseModal)="closeModal()"></app-sale-details-modal>
     } @empty {
     <div>Não há vendas ativas!</div>
     }
 
     <!--Paginator-->
-    <!-- <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
-        (changePageEvent)="onPageChange($event)"></app-paginator> -->
+    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
+        (notifyParentToChangePage)="changePage($event)"></app-paginator>
     <!--End Paginator-->
 
 </p-panel>
