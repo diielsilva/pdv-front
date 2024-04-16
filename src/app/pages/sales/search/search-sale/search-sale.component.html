@@ -2,24 +2,19 @@
 <p-panel header="Pesquisar Vendas" styleClass="mt-2">
 
     <!--Search Form-->
-    <div class="mb-2">
-        <form [formGroup]="searchForm">
-            <div class="flex justify-content-center">
-                <p-calendar formControlName="date" placeholder="Data da Venda" dateFormat="dd/mm/yy"></p-calendar>
-                <p-button label="Pesquisar" [disabled]="loader.isUnderLoading() || searchForm.invalid"
-                    (onClick)="searchSales()" [rounded]="true" styleClass="ml-2"></p-button>
-            </div>
-        </form>
-    </div>
+    <app-search-sales-form (notifyParentToSearch)="search($event)"></app-search-sales-form>
     <!--End Search Form-->
 
     @if (sales.length > 0) {
     @for (sale of sales; track $index) {
-    <app-sale [sale]="sale"></app-sale>
+    <app-active-sale-card [sale]="sale" (notifyParentToDisplayDetails)="displayModal($index)"
+        (notifyParentToDisplayReport)="individualReport($event)"></app-active-sale-card>
+    <app-sale-details-modal [isVisible]="modalsPerSale[$index]" [sale]="saleDetails"
+        (notifyParentToCloseModal)="closeModal()"></app-sale-details-modal>
     }
 
-    <p-button label="Relatório do Dia" (onClick)="profitReport()" [disabled]="loader.isUnderLoading()" [rounded]="true"
-        styleClass="w-full"></p-button>
+    <p-button label="Relatório do Dia" (onClick)="todaysReport()" [disabled]="loadingHelper.isUnderLoading()"
+        [rounded]="true" styleClass="w-full cursor-pointer"></p-button>
     }
 </p-panel>
 <!--End Search Panel-->
