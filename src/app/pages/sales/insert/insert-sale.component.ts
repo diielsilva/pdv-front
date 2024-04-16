@@ -169,7 +169,7 @@ export class InsertSaleComponent implements OnInit, OnDestroy {
   }
 
   protected generateSaleReport(sale: Sale): void {
-    const subscription = this.reportService.generateSaleReport(sale).subscribe({
+    const subscription = this.reportService.generateSaleReport(sale.id).subscribe({
       next: (response: Blob) => {
         const reportWindow = window.URL.createObjectURL(response)
         window.open(reportWindow)

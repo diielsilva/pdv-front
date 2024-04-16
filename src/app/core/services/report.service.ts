@@ -11,8 +11,8 @@ export class ReportService {
   protected baseUrl = `${environment.api}/reports`
   protected httpClient = inject(HttpClient)
 
-  public generateSaleReport(sale: Sale): Observable<Blob> {
-    return this.httpClient.get<Blob>(`${this.baseUrl}/sale/${sale.id}`, {
+  public generateSaleReport(sale: number): Observable<Blob> {
+    return this.httpClient.get<Blob>(`${this.baseUrl}/sale/${sale}`, {
       responseType: 'blob' as 'json', headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/pdf'
