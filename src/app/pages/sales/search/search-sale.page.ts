@@ -2,24 +2,24 @@ import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { take } from 'rxjs';
-import { ActiveSaleCardComponent } from '../../../../common/components/sales/active-sale-card/active-sale-card.component';
-import { SaleDetailsModalComponent } from '../../../../common/components/sales/sale-details-modal/sale-details-modal.component';
-import { SearchSalesFormComponent } from '../../../../common/components/sales/search-sales-form/search-sales-form.component';
-import { SaleDetailsResponse } from '../../../../common/dtos/sales/sale-details.response';
-import { LoadingHelper } from '../../../../common/helpers/loading.helper';
-import { MessageHelper } from '../../../../common/helpers/message.helper';
-import { Sale } from '../../../../core/models/sale';
-import { ReportService } from '../../../../core/services/report.service';
-import { SaleService } from '../../../../core/services/sale.service';
+import { ActiveSaleCardComponent } from '../../../common/components/sales/active-sale-card/active-sale-card.component';
+import { SaleDetailsModalComponent } from '../../../common/components/sales/sale-details-modal/sale-details-modal.component';
+import { SearchSalesFormComponent } from '../../../common/components/sales/search-sales-form/search-sales-form.component';
+import { SaleDetailsResponse } from '../../../common/dtos/sales/sale-details.response';
+import { LoadingHelper } from '../../../common/helpers/loading.helper';
+import { MessageHelper } from '../../../common/helpers/message.helper';
+import { Sale } from '../../../core/models/sale';
+import { ReportService } from '../../../core/services/report.service';
+import { SaleService } from '../../../core/services/sale.service';
 
 @Component({
   selector: 'app-search-sale',
   standalone: true,
   imports: [PanelModule, ButtonModule, SearchSalesFormComponent, ActiveSaleCardComponent, SaleDetailsModalComponent],
-  templateUrl: './search-sale.component.html',
-  styleUrl: './search-sale.component.css'
+  templateUrl: './search-sale.page.html',
+  styleUrl: './search-sale.page.css'
 })
-export class SearchSaleComponent {
+export class SearchSalePage {
   protected sales: Sale[] = [];
   protected modalsPerSale: boolean[] = [];
   protected saleDetails?: SaleDetailsResponse;

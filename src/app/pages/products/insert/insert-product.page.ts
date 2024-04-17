@@ -14,10 +14,10 @@ import { ProductService } from '../../../core/services/product.service';
   selector: 'app-insert-product',
   standalone: true,
   imports: [ReactiveFormsModule, PanelModule, InputTextModule, InputNumberModule, ButtonModule],
-  templateUrl: './insert-product.component.html',
-  styleUrl: './insert-product.component.css'
+  templateUrl: './insert-product.page.html',
+  styleUrl: './insert-product.page.css'
 })
-export class InsertProductComponent implements OnInit {
+export class InsertProductPage implements OnInit {
   protected form!: FormGroup;
 
   public constructor(

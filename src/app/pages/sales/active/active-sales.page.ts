@@ -16,10 +16,10 @@ import { Pageable } from '../../../core/utils/pageable';
   selector: 'app-active-sales',
   standalone: true,
   imports: [PanelModule, PaginatorComponent, ActiveSaleCardComponent, SaleDetailsModalComponent],
-  templateUrl: './active-sales.component.html',
-  styleUrl: './active-sales.component.css'
+  templateUrl: './active-sales.page.html',
+  styleUrl: './active-sales.page.css'
 })
-export class ActiveSalesComponent implements OnInit {
+export class ActiveSalesPage implements OnInit {
   protected sales: Sale[] = [];
   protected modalsPerSale: boolean[] = [];
   protected saleDetails?: SaleDetailsResponse;
@@ -73,7 +73,6 @@ export class ActiveSalesComponent implements OnInit {
   }
 
   protected displayReport(id: number): void {
-    console.log('here')
     this.reportService.generateSaleReport(id).pipe(take(1)).subscribe({
       next: (response: Blob) => {
         const reportWindow: string = window.URL.createObjectURL(response);

@@ -24,10 +24,10 @@ import { SaleService } from '../../../core/services/sale.service';
   selector: 'app-insert',
   standalone: true,
   imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe, TableModule],
-  templateUrl: './insert-sale.component.html',
-  styleUrl: './insert-sale.component.css'
+  templateUrl: './insert-sale.page.html',
+  styleUrl: './insert-sale.page.css'
 })
-export class InsertSaleComponent implements OnInit, OnDestroy {
+export class InsertSalePage implements OnInit, OnDestroy {
   protected saleService = inject(SaleService)
   protected productService = inject(ProductService)
   protected reportService = inject(ReportService)
