@@ -18,10 +18,10 @@ import { Pageable } from '../../../core/utils/pageable';
   selector: 'app-active-products',
   standalone: true,
   imports: [PanelModule, ButtonModule, PaginatorComponent, ActiveProductCardComponent, UpdateProductModalComponent, PaginatorComponent],
-  templateUrl: './active-products.component.html',
-  styleUrl: './active-products.component.css'
+  templateUrl: './active-products.page.html',
+  styleUrl: './active-products.page.css'
 })
-export class ActiveProductsComponent implements OnInit {
+export class ActiveProductsPage implements OnInit {
   protected products: Product[] = [];
   protected updateModalsPerProduct: boolean[] = [];
   protected selectedProduct: number = -1;
@@ -91,7 +91,7 @@ export class ActiveProductsComponent implements OnInit {
   }
 
   protected generateInventoryReport(): void {
-    this.reportService.generateGoodsReport().pipe(take(1)).subscribe({
+    this.reportService.inventoryReport().pipe(take(1)).subscribe({
       next: (response: Blob) => {
         const reportWindow = window.URL.createObjectURL(response);
         window.open(reportWindow);

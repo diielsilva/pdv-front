@@ -6,22 +6,22 @@ import { InputTextModule } from "primeng/inputtext";
 import { PanelModule } from "primeng/panel";
 import { PasswordModule } from "primeng/password";
 import { take } from 'rxjs';
-import { LoadingComponent } from '../../../common/components/loading/loading.component';
-import { MessageComponent } from '../../../common/components/message/message.component';
-import { LoginRequest } from '../../../common/dtos/login/login.request';
-import { LoginResponse } from '../../../common/dtos/login/login.response';
-import { LoadingHelper } from '../../../common/helpers/loading.helper';
-import { MessageHelper } from '../../../common/helpers/message.helper';
-import { SecurityService } from '../../../core/services/security.service';
+import { LoadingComponent } from '../../common/components/loading/loading.component';
+import { MessageComponent } from '../../common/components/message/message.component';
+import { LoginRequest } from '../../common/dtos/login/login.request';
+import { LoginResponse } from '../../common/dtos/login/login.response';
+import { LoadingHelper } from '../../common/helpers/loading.helper';
+import { MessageHelper } from '../../common/helpers/message.helper';
+import { SecurityService } from '../../core/services/security.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [PanelModule, ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, MessageComponent, LoadingComponent],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  templateUrl: './login.page.html',
+  styleUrl: './login.page.css'
 })
-export class LoginComponent implements OnInit {
+export class LoginPage implements OnInit {
   protected form!: FormGroup;
 
   public constructor(

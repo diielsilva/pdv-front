@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ProductRequest } from '../../common/dtos/products/product.request';
@@ -10,42 +10,43 @@ import { Pageable } from '../utils/pageable';
   providedIn: 'root'
 })
 export class ProductService {
-  private baseUrl = `${environment.api}/products`
-  private httpClient = inject(HttpClient)
+  private url: string = `${environment.api}/products`;
+
+  public constructor(private httpClient: HttpClient) { }
 
   public save(dto: ProductRequest): Observable<Product> {
-    return this.httpClient.post<Product>(this.baseUrl, dto)
+    return this.httpClient.post<Product>(this.url, dto);
   }
 
   public findActive(page: number): Observable<Pageable<Product>> {
-    return this.httpClient.get<Pageable<Product>>(`${this.baseUrl}/active?page=${this.calculatePage(page)}`)
+    return this.httpClient.get<Pageable<Product>>(`${this.url}/active?page=${this.calculatePage(page)}`);
   }
 
   public findInactive(page: number): Observable<Pageable<Product>> {
-    return this.httpClient.get<Pageable<Product>>(`${this.baseUrl}/inactive?page=${this.calculatePage(page)}`)
+    return this.httpClient.get<Pageable<Product>>(`${this.url}/inactive?page=${this.calculatePage(page)}`);
   }
 
-  public findActiveByDescriptionContaining(description: string, page: number): Observable<Pageable<Product>> {
-    return this.httpClient.get<Pageable<Product>>(`${this.baseUrl}/active/search?description=${description}&page=${this.calculatePage(page)}`)
+  public search(description: string, page: number): Observable<Pageable<Product>> {
+    return this.httpClient.get<Pageable<Product>>(`${this.url}/active/search?description=${description}&page=${this.calculatePage(page)}`);
   }
 
   public findActiveById(id: number): Observable<Product> {
-    return this.httpClient.get<Product>(`${this.baseUrl}/active/${id}`)
+    return this.httpClient.get<Product>(`${this.url}/active/${id}`);
   }
 
   public update(id: number, dto: ProductRequest): Observable<Product> {
-    return this.httpClient.put<Product>(`${this.baseUrl}/${id}`, dto)
+    return this.httpClient.put<Product>(`${this.url}/${id}`, dto);
   }
 
   public delete(id: number): Observable<void> {
-    return this.httpClient.delete<void>(`${this.baseUrl}/${id}`)
+    return this.httpClient.delete<void>(`${this.url}/${id}`);
   }
 
   public reactivate(id: number): Observable<void> {
-    return this.httpClient.patch<void>(`${this.baseUrl}/${id}`, null)
+    return this.httpClient.patch<void>(`${this.url}/${id}`, null);
   }
 
   private calculatePage(page: number): number {
-    return page - 1
+    return page - 1;
   }
 }

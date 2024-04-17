@@ -9,7 +9,7 @@ import { LoginResponse } from '../../common/dtos/login/login.response';
   providedIn: 'root'
 })
 export class SecurityService {
-  private url = `${environment.api}/login`;
+  private url: string = `${environment.api}/login`;
 
   public constructor(private httpClient: HttpClient) { }
 

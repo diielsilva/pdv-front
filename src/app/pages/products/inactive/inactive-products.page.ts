@@ -2,22 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { take } from 'rxjs';
-import { PaginatorComponent } from '../../../../common/components/paginator/paginator.component';
-import { InactiveProductCardComponent } from '../../../../common/components/products/inactive-product-card/inactive-product-card.component';
-import { LoadingHelper } from '../../../../common/helpers/loading.helper';
-import { MessageHelper } from '../../../../common/helpers/message.helper';
-import { Product } from '../../../../core/models/product';
-import { ProductService } from '../../../../core/services/product.service';
-import { Pageable } from '../../../../core/utils/pageable';
+import { PaginatorComponent } from '../../../common/components/paginator/paginator.component';
+import { InactiveProductCardComponent } from '../../../common/components/products/inactive-product-card/inactive-product-card.component';
+import { LoadingHelper } from '../../../common/helpers/loading.helper';
+import { MessageHelper } from '../../../common/helpers/message.helper';
+import { Product } from '../../../core/models/product';
+import { ProductService } from '../../../core/services/product.service';
+import { Pageable } from '../../../core/utils/pageable';
 
 @Component({
   selector: 'app-inactive-products',
   standalone: true,
   imports: [PaginatorComponent, PanelModule, ButtonModule, InactiveProductCardComponent],
-  templateUrl: './inactive-products.component.html',
-  styleUrl: './inactive-products.component.css'
+  templateUrl: './inactive-products.page.html',
+  styleUrl: './inactive-products.page.css'
 })
-export class InactiveProductsComponent implements OnInit {
+export class InactiveProductsPage implements OnInit {
   protected products: Product[] = [];
   protected currentPage: number = 1;
   protected totalOfPages: number = 1;
