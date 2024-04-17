@@ -1,6 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -13,7 +13,6 @@ import { SaleItemRequest } from '../../../common/dtos/sales/sale-item.request';
 import { SaleRequest } from '../../../common/dtos/sales/sale.request';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
-import { SubscriptionHelper } from '../../../common/helpers/subscription.helper';
 import { Product } from '../../../core/models/product';
 import { Sale } from '../../../core/models/sale';
 import { ProductService } from '../../../core/services/product.service';
@@ -27,11 +26,10 @@ import { SaleService } from '../../../core/services/sale.service';
   templateUrl: './insert-sale.page.html',
   styleUrl: './insert-sale.page.css'
 })
-export class InsertSalePage implements OnInit, OnDestroy {
+export class InsertSalePage implements OnInit {
   protected saleService = inject(SaleService)
   protected productService = inject(ProductService)
   protected reportService = inject(ReportService)
-  protected subscriber = inject(SubscriptionHelper)
   protected messager = inject(MessageHelper)
   protected loader = inject(LoadingHelper)
   protected cartForm!: FormGroup
@@ -53,17 +51,13 @@ export class InsertSalePage implements OnInit, OnDestroy {
 
   }
 
-  public ngOnDestroy(): void {
-    this.subscriber.clean()
-  }
-
   protected insertIntoCart(): void {
     const productId: number = this.cartForm.controls['productId'].value
 
     if (this.hasDuplicatedProducts()) {
-      this.messager.displayMessage('O produto selecionado já está no carrinho!', 'error')
+      this.messager.display('O produto selecionado já está no carrinho!', 'error')
     } else {
-      const subscription = this.productService.findActiveById(productId).subscribe({
+      this.productService.findActiveById(productId).subscribe({
         next: (product: Product) => {
 
           const item: CartItemResponse = {
@@ -74,7 +68,7 @@ export class InsertSalePage implements OnInit, OnDestroy {
           }
 
           if (item.amount > product.amount) {
-            this.messager.displayMessage('Não há estoque suficiente do produto selecionado!', 'error')
+            this.messager.display('Não há estoque suficiente do produto selecionado!', 'error')
           } else {
             this.purchaseCart.push(item)
             this.cartForm.reset()
@@ -83,11 +77,10 @@ export class InsertSalePage implements OnInit, OnDestroy {
 
         },
         error: (response: HttpErrorResponse) => {
-          this.messager.displayMessage(response.error.message, 'error')
+          this.messager.display(response.error.message, 'error')
         }
       })
 
-      this.subscriber.add(subscription)
     }
   }
 
@@ -103,20 +96,19 @@ export class InsertSalePage implements OnInit, OnDestroy {
       dto.items.push(item)
     }
 
-    const subscription = this.saleService.save(dto).subscribe({
+    this.saleService.save(dto).subscribe({
       next: (sale: Sale) => {
-        this.messager.displayMessage('Venda cadastrada com sucesso!', 'success')
+        this.messager.display('Venda cadastrada com sucesso!', 'success')
         this.cartForm.reset()
         this.saleForm.reset()
         this.purchaseCart = []
         this.generateSaleReport(sale)
       },
       error: (response: HttpErrorResponse) => {
-        this.messager.displayMessage(response.error.message, 'error')
+        this.messager.display(response.error.message, 'error')
       }
     })
 
-    this.subscriber.add(subscription)
   }
 
   protected hasDuplicatedProducts(): boolean {
@@ -169,14 +161,13 @@ export class InsertSalePage implements OnInit, OnDestroy {
   }
 
   protected generateSaleReport(sale: Sale): void {
-    const subscription = this.reportService.saleReport(sale.id).subscribe({
+    this.reportService.saleReport(sale.id).subscribe({
       next: (response: Blob) => {
         const reportWindow = window.URL.createObjectURL(response)
         window.open(reportWindow)
       },
-      error: (response: HttpErrorResponse) => this.messager.displayMessage(response.error.message, 'error')
+      error: (response: HttpErrorResponse) => this.messager.display(response.error.message, 'error')
     })
 
-    this.subscriber.add(subscription)
   }
 }

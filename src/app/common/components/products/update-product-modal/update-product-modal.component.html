@@ -16,7 +16,7 @@
         </div>
 
         <p-button label="Editar" (onClick)="updateProduct()"
-            [disabled]="loadingHelper.isUnderLoading() || updateForm.invalid" [rounded]="true"
+            [disabled]="loadingHelper.isLoading() || updateForm.invalid" [rounded]="true"
             styleClass="w-full"></p-button>
     </form>
 </p-dialog>

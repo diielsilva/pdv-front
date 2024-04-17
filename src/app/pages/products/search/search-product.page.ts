@@ -79,7 +79,7 @@ export class SearchProductPage {
             this.searchedTerm = '';
             this.hasPreviousProducts = false;
           } else if (!this.hasPreviousProducts && this.products.length === 0) {
-            this.messageHelper.displayMessage('Não foram encontrados produtos com a descrição indicada!', 'error');
+            this.messageHelper.display('Não foram encontrados produtos com a descrição indicada!', 'error');
           }
 
         }
@@ -89,7 +89,7 @@ export class SearchProductPage {
   protected updateProduct(dto: ProductRequest): void {
     this.productService.update(this.products[this.selectedProduct].id, dto).pipe(take(1)).subscribe({
       next: () => {
-        this.messageHelper.displayMessage('Produto alterado com sucesso!', 'success');
+        this.messageHelper.display('Produto alterado com sucesso!', 'success');
         this.searchProducts(this.searchedTerm);
       }
     });
@@ -98,7 +98,7 @@ export class SearchProductPage {
   protected deleteProduct(id: number): void {
     this.productService.delete(id).pipe(take(1)).subscribe({
       next: () => {
-        this.messageHelper.displayMessage('Produto removido com successo!', 'success');
+        this.messageHelper.display('Produto removido com successo!', 'success');
         this.searchProducts(this.searchedTerm);
       }
     })

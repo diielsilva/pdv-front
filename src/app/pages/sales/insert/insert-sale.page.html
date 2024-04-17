@@ -11,7 +11,7 @@
             <p-inputNumber formControlName="amount" placeholder="Quantidade" styleClass="w-full"
                 class="w-full"></p-inputNumber>
         </div>
-        <p-button label="Adicionar ao Carrinho" [disabled]="loader.isUnderLoading() || cartForm.invalid"
+        <p-button label="Adicionar ao Carrinho" [disabled]="loader.isLoading() || cartForm.invalid"
             (onClick)="insertIntoCart()" [rounded]="true" styleClass="w-full"></p-button>
     </form>
     <!--End Cart Form-->
@@ -62,7 +62,7 @@
             <p-dropdown formControlName="paymentMethod" [options]="paymentMethods" placeholder="Forma de Pagamento"
                 class="w-full" styleClass="w-full"></p-dropdown>
         </div>
-        <p-button label="Finalizar Venda" [disabled]="loader.isUnderLoading() || saleForm.invalid"
+        <p-button label="Finalizar Venda" [disabled]="loader.isLoading() || saleForm.invalid"
             (onClick)="finishSale()" [rounded]="true" styleClass="w-full"></p-button>
     </form>
     <!--End Finish Sale Form-->

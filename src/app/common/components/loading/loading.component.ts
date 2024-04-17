@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LoadingHelper } from '../../helpers/loading.helper';
 
@@ -10,5 +10,7 @@ import { LoadingHelper } from '../../helpers/loading.helper';
   styleUrl: './loading.component.css'
 })
 export class LoadingComponent {
-  protected loader = inject(LoadingHelper)
+
+  public constructor(protected loadingHelper: LoadingHelper) { }
+
 }

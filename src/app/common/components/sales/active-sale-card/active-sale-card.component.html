@@ -3,10 +3,10 @@
 
     <ng-template pTemplate="footer">
         <div class="text-right">
-            <p-button icon="pi pi-info-circle" [disabled]="loadingHelper.isUnderLoading()" [rounded]="true"
+            <p-button icon="pi pi-info-circle" [disabled]="loadingHelper.isLoading()" [rounded]="true"
                 styleClass="mr-2 cursor-pointer" (onClick)="notifyParentToDisplayDetails.emit()"></p-button>
             <p-button icon="pi pi-file-pdf" (onClick)="notifyParentToDisplayReport.emit(sale.id)"
-                [disabled]="loadingHelper.isUnderLoading()" [rounded]="true"
+                [disabled]="loadingHelper.isLoading()" [rounded]="true"
                 styleClass="mr-2 cursor-pointer"></p-button>
         </div>
     </ng-template>

@@ -17,7 +17,7 @@
                 placeholder="Preço" class="w-full" styleClass="w-full"></p-inputNumber>
         </div>
 
-        <p-button label="Cadastrar" (onClick)="save()" [disabled]="loadingHelper.isUnderLoading() || form.invalid"
+        <p-button label="Cadastrar" (onClick)="save()" [disabled]="loadingHelper.isLoading() || form.invalid"
             styleClass="w-full" [rounded]="true"></p-button>
     </form>
     <!--End Insert Form-->

@@ -54,7 +54,7 @@ export class InactiveProductsPage implements OnInit {
   protected reactivateProduct(id: number): void {
     this.productService.reactivate(id).pipe(take(1)).subscribe({
       next: () => {
-        this.messageHelper.displayMessage('Produto reativado com sucesso!', 'success');
+        this.messageHelper.display('Produto reativado com sucesso!', 'success');
         this.findInactiveProducts();
       }
     });

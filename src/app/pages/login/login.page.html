@@ -6,7 +6,7 @@
         <input pInputText formControlName="login" placeholder="Usuário" class="w-full m-1" />
         <input type="password" pInputText formControlName="password" placeholder="Senha" class="w-full m-1">
         <div class="w-full text-center">
-            <p-button label="Login" [disabled]="loadingHelper.isUnderLoading() || form.invalid" (onClick)="login()"
+            <p-button label="Login" [disabled]="loadingHelper.isLoading() || form.invalid" (onClick)="login()"
                 styleClass="w-full m-1 cursor-pointer" [rounded]="true"></p-button>
         </div>
     </form>

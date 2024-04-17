@@ -43,7 +43,7 @@ export class InsertProductPage implements OnInit {
 
     this.productService.save(dto).pipe(take(1)).subscribe({
       next: () => {
-        this.messageHelper.displayMessage('Produto cadastrado com sucesso!', 'success');
+        this.messageHelper.display('Produto cadastrado com sucesso!', 'success');
         this.form.reset();
       },
     });

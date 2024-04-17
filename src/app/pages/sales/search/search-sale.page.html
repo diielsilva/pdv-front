@@ -13,7 +13,7 @@
         (notifyParentToCloseModal)="closeModal()"></app-sale-details-modal>
     }
 
-    <p-button label="Relatório do Dia" (onClick)="todaysReport()" [disabled]="loadingHelper.isUnderLoading()"
+    <p-button label="Relatório do Dia" (onClick)="todaysReport()" [disabled]="loadingHelper.isLoading()"
         [rounded]="true" styleClass="w-full cursor-pointer"></p-button>
     }
 </p-panel>

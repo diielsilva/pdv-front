@@ -5,9 +5,9 @@ import { catchError, throwError } from 'rxjs';
 import { SecurityService } from '../services/security.service';
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const securityService = inject(SecurityService);
-  const router = inject(Router);
-  const token = securityService.getSession();
+  const securityService: SecurityService = inject(SecurityService);
+  const router: Router = inject(Router);
+  const token: string = securityService.getSession();
 
   if (token !== '') {
     const newRequest = req.clone({ headers: req.headers.append('Authorization', `Bearer ${token}`) });
