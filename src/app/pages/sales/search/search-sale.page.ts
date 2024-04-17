@@ -44,7 +44,7 @@ export class SearchSalePage {
 
   protected search(date: Date): void {
     this.searchedDate = date;
-    this.saleService.findActiveByDate(date).pipe(take(1)).subscribe({
+    this.saleService.search(date).pipe(take(1)).subscribe({
       next: (response: Sale[]) => {
         this.modalsPerSale = [];
         this.sales = response;
@@ -67,7 +67,7 @@ export class SearchSalePage {
   }
 
   protected individualReport(id: number): void {
-    this.reportService.generateSaleReport(id).pipe(take(1)).subscribe({
+    this.reportService.saleReport(id).pipe(take(1)).subscribe({
       next: (response: Blob) => {
         const reportWindow: string = window.URL.createObjectURL(response);
         window.open(reportWindow);
@@ -76,7 +76,7 @@ export class SearchSalePage {
   }
 
   protected todaysReport(): void {
-    this.reportService.generateReportByDate(this.searchedDate).subscribe({
+    this.reportService.todaysReport(this.searchedDate).subscribe({
       next: (response: Blob) => {
         const reportWindow = window.URL.createObjectURL(response)
         window.open(reportWindow)

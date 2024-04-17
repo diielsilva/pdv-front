@@ -73,7 +73,7 @@ export class ActiveSalesPage implements OnInit {
   }
 
   protected displayReport(id: number): void {
-    this.reportService.generateSaleReport(id).pipe(take(1)).subscribe({
+    this.reportService.saleReport(id).pipe(take(1)).subscribe({
       next: (response: Blob) => {
         const reportWindow: string = window.URL.createObjectURL(response);
         window.open(reportWindow);

@@ -59,7 +59,7 @@ export class SearchProductPage {
 
     this.searchedTerm = searchedTerm;
     this.productService.
-      findActiveByDescriptionContaining(searchedTerm, this.currentPage).pipe(take(1)).subscribe({
+      search(searchedTerm, this.currentPage).pipe(take(1)).subscribe({
         next: (response: Pageable<Product>) => {
           this.updateModalsPerProduct = [];
           this.products = response.content;

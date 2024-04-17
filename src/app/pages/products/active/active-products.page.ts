@@ -91,7 +91,7 @@ export class ActiveProductsPage implements OnInit {
   }
 
   protected generateInventoryReport(): void {
-    this.reportService.generateGoodsReport().pipe(take(1)).subscribe({
+    this.reportService.inventoryReport().pipe(take(1)).subscribe({
       next: (response: Blob) => {
         const reportWindow = window.URL.createObjectURL(response);
         window.open(reportWindow);
