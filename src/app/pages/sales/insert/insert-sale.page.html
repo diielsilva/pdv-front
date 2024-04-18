@@ -4,23 +4,6 @@
 <app-shopping-cart-items [items]="shoppingCart" [total]="totalCart"
     (notifyParentToDeleteFromCart)="deleteFromShoppingCart($event)"></app-shopping-cart-items>
 
-<p-panel header="Finalizar Venda" styleClass="mt-2">
-
-    <!--Finish Sale Form-->
-    <form [formGroup]="saleForm">
-        <div class="mb-2">
-            <p-inputNumber formControlName="discount" placeholder="Desconto (Em %)" class="w-full"
-                styleClass="w-full"></p-inputNumber>
-        </div>
-        <div class="mb-2">
-            <p-dropdown formControlName="paymentMethod" [options]="paymentMethods" placeholder="Forma de Pagamento"
-                class="w-full" styleClass="w-full"></p-dropdown>
-        </div>
-        <p-button label="Finalizar Venda" [disabled]="loadingHelper.isLoading() || saleForm.invalid"
-            (onClick)="finishSale()" [rounded]="true" styleClass="w-full"></p-button>
-    </form>
-    <!--End Finish Sale Form-->
-
-</p-panel>
+<app-confirm-sale-form (notifyParentToConfirmSale)="save($event)"></app-confirm-sale-form>
 }
 <!--End Finish Panel-->

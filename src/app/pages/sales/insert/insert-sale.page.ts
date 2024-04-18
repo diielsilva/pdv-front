@@ -1,18 +1,12 @@
-import { CurrencyPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
+import { Component } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
-import { TableModule } from 'primeng/table';
 import { take } from 'rxjs';
+import { ConfirmSaleFormComponent } from '../../../common/components/sales/confirm-sale-form/confirm-sale-form.component';
 import { ShoppingCartFormComponent } from '../../../common/components/sales/shopping-cart-form/shopping-cart-form.component';
 import { ShoppingCartItemsComponent } from '../../../common/components/sales/shopping-cart-items/shopping-cart-items.component';
 import { CartItemRequest } from '../../../common/dtos/cart/cart-item.request';
 import { CartItemResponse } from '../../../common/dtos/cart/cart-item.response';
-import { SaleItemRequest } from '../../../common/dtos/sales/sale-item.request';
+import { ConfirmSaleRequest } from '../../../common/dtos/sales/confirm-sale.request';
 import { SaleRequest } from '../../../common/dtos/sales/sale.request';
 import { LoadingHelper } from '../../../common/helpers/loading.helper';
 import { MessageHelper } from '../../../common/helpers/message.helper';
@@ -25,17 +19,14 @@ import { SaleService } from '../../../core/services/sale.service';
 @Component({
   selector: 'app-insert',
   standalone: true,
-  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe, TableModule, ShoppingCartFormComponent,
-    ShoppingCartItemsComponent],
+  imports: [PanelModule, ShoppingCartFormComponent, ShoppingCartItemsComponent, ConfirmSaleFormComponent],
   templateUrl: './insert-sale.page.html',
   styleUrl: './insert-sale.page.css'
 })
-export class InsertSalePage implements OnInit {
-  protected saleForm!: FormGroup;
+export class InsertSalePage {
   protected paymentMethods = ['Cartão', 'Pix', 'Dinheiro'];
   protected shoppingCart: CartItemResponse[] = [];
   protected totalCart: number = 0;
-  protected cartTotalWithoutDiscount = 0;
 
   public constructor(
     protected saleService: SaleService,
@@ -44,14 +35,6 @@ export class InsertSalePage implements OnInit {
     protected messageHelper: MessageHelper,
     protected loadingHelper: LoadingHelper
   ) { }
-
-  public ngOnInit(): void {
-    this.saleForm = new FormGroup({
-      discount: new FormControl<number | null>(null, { validators: [Validators.min(0), Validators.max(100)] }),
-      paymentMethod: new FormControl<string | null>(null, { validators: [Validators.required] })
-    })
-
-  }
 
   protected insertIntoShoppingCart(dto: CartItemRequest): void {
     if (this.isProductInShoppingCart(dto.productId)) {
@@ -98,37 +81,35 @@ export class InsertSalePage implements OnInit {
     });
   }
 
-  protected convertToValidPaymentMethod(paymentMethod: string): string {
+  private transformPaymentMethod(paymentMethod: string): string {
     switch (paymentMethod) {
       case 'Cartão':
-        return 'CARD'
+        return 'CARD';
       case 'Pix':
-        return 'PIX'
+        return 'PIX';
       case 'Dinheiro':
-        return 'CASH'
+        return 'CASH';
       default:
-        return ''
+        return '';
     }
   }
 
-  protected finishSale(): void {
-    const dto: SaleRequest = {
-      discount: this.saleForm.controls['discount'].value === null ? 0 : this.saleForm.controls['discount'].value,
-      paymentMethod: this.convertToValidPaymentMethod(this.saleForm.controls['paymentMethod'].value),
+  protected save(dto: ConfirmSaleRequest): void {
+    const sale: SaleRequest = {
+      discount: dto.discount === null ? 0 : dto.discount,
+      paymentMethod: this.transformPaymentMethod(dto.paymentMethod),
       items: []
-    }
+    };
 
-    for (let i = 0; i < this.shoppingCart.length; i++) {
-      const item: SaleItemRequest = { productId: this.shoppingCart[i].productId, amount: this.shoppingCart[i].amount }
-      dto.items.push(item)
-    }
+    this.shoppingCart.forEach((item: CartItemResponse) => {
+      sale.items.push({ productId: item.productId, amount: item.amount });
+    });
 
-    this.saleService.save(dto).subscribe({
-      next: (sale: Sale) => {
-        this.messageHelper.display('Venda cadastrada com sucesso!', 'success')
-        this.saleForm.reset()
-        this.shoppingCart = []
-        this.generateSaleReport(sale)
+    this.saleService.save(sale).pipe(take(1)).subscribe({
+      next: (response: Sale) => {
+        this.messageHelper.display('Venda cadastrada com sucesso!', 'success');
+        this.shoppingCart = [];
+        this.generateSaleReport(response);
       }
     });
 
