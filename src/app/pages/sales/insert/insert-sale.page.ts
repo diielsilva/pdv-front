@@ -24,7 +24,6 @@ import { SaleService } from '../../../core/services/sale.service';
   styleUrl: './insert-sale.page.css'
 })
 export class InsertSalePage {
-  protected paymentMethods = ['Cartão', 'Pix', 'Dinheiro'];
   protected shoppingCart: CartItemResponse[] = [];
   protected totalCart: number = 0;
 
