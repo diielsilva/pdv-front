@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -9,6 +9,7 @@ import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { take } from 'rxjs';
 import { ShoppingCartFormComponent } from '../../../common/components/sales/shopping-cart-form/shopping-cart-form.component';
+import { ShoppingCartItemsComponent } from '../../../common/components/sales/shopping-cart-items/shopping-cart-items.component';
 import { CartItemRequest } from '../../../common/dtos/cart/cart-item.request';
 import { CartItemResponse } from '../../../common/dtos/cart/cart-item.response';
 import { SaleItemRequest } from '../../../common/dtos/sales/sale-item.request';
@@ -24,20 +25,25 @@ import { SaleService } from '../../../core/services/sale.service';
 @Component({
   selector: 'app-insert',
   standalone: true,
-  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe, TableModule, ShoppingCartFormComponent],
+  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe, TableModule, ShoppingCartFormComponent,
+    ShoppingCartItemsComponent],
   templateUrl: './insert-sale.page.html',
   styleUrl: './insert-sale.page.css'
 })
 export class InsertSalePage implements OnInit {
-  protected saleService = inject(SaleService)
-  protected productService = inject(ProductService)
-  protected reportService = inject(ReportService)
-  protected messager = inject(MessageHelper)
-  protected loader = inject(LoadingHelper)
-  protected saleForm!: FormGroup
-  protected paymentMethods = ['Cartão', 'Pix', 'Dinheiro']
-  protected purchaseCart: CartItemResponse[] = []
-  protected cartTotalWithoutDiscount = 0
+  protected saleForm!: FormGroup;
+  protected paymentMethods = ['Cartão', 'Pix', 'Dinheiro'];
+  protected shoppingCart: CartItemResponse[] = [];
+  protected totalCart: number = 0;
+  protected cartTotalWithoutDiscount = 0;
+
+  public constructor(
+    protected saleService: SaleService,
+    protected productService: ProductService,
+    protected reportService: ReportService,
+    protected messageHelper: MessageHelper,
+    protected loadingHelper: LoadingHelper
+  ) { }
 
   public ngOnInit(): void {
     this.saleForm = new FormGroup({
@@ -48,73 +54,48 @@ export class InsertSalePage implements OnInit {
   }
 
   protected insertIntoShoppingCart(dto: CartItemRequest): void {
-
     if (this.isProductInShoppingCart(dto.productId)) {
-      this.messager.display('O produto selecionado já está no carrinho!', 'error')
+      this.messageHelper.display('O produto selecionado já está no carrinho!', 'error');
     } else {
-      this.productService.findActiveById(dto.productId).subscribe({
-        next: (product: Product) => {
+      this.productService.findActiveById(dto.productId).pipe(take(1)).subscribe({
+        next: (response: Product) => {
 
           const item: CartItemResponse = {
-            productId: product.id,
-            description: product.description,
-            amount: dto.amount,
-            price: product.price
+            productId: response.id, description: response.description, amount: dto.amount, price: response.price
           }
 
-          if (item.amount > product.amount) {
-            this.messager.display('Não há estoque suficiente do produto selecionado!', 'error')
+          if (item.amount > response.amount) {
+            this.messageHelper.display('Não há estoque suficiente do produto selecionado!', 'error')
           } else {
-            this.purchaseCart.push(item);
-            this.calculateSubTotal()
+            this.shoppingCart.push(item);
+            this.calculateSubTotal();
           }
-
         }
       });
-
     }
   }
 
-  protected finishSale(): void {
-    const dto: SaleRequest = {
-      discount: this.saleForm.controls['discount'].value === null ? 0 : this.saleForm.controls['discount'].value,
-      paymentMethod: this.convertToValidPaymentMethod(this.saleForm.controls['paymentMethod'].value),
-      items: []
-    }
-
-    for (let i = 0; i < this.purchaseCart.length; i++) {
-      const item: SaleItemRequest = { productId: this.purchaseCart[i].productId, amount: this.purchaseCart[i].amount }
-      dto.items.push(item)
-    }
-
-    this.saleService.save(dto).subscribe({
-      next: (sale: Sale) => {
-        this.messager.display('Venda cadastrada com sucesso!', 'success')
-        this.saleForm.reset()
-        this.purchaseCart = []
-        this.generateSaleReport(sale)
-      }
-    });
-
+  protected deleteFromShoppingCart(dto: CartItemResponse): void {
+    const shoppingCart: CartItemResponse[] = this.shoppingCart.filter((item: CartItemResponse) => item.productId !== dto.productId);
+    this.shoppingCart = shoppingCart;
+    this.calculateSubTotal();
   }
 
   protected isProductInShoppingCart(id: number): boolean {
-    for (let i = 0; i < this.purchaseCart.length; i++) {
-
-      if (this.purchaseCart[i].productId === id) {
-        return true;
+    let isProductInShoppingCart: boolean = false;
+    this.shoppingCart.forEach((item: CartItemResponse) => {
+      if (item.productId === id) {
+        isProductInShoppingCart = true;
       }
-
-    }
-
-    return false;
+    });
+    return isProductInShoppingCart;
   }
 
   protected calculateSubTotal(): void {
-    this.cartTotalWithoutDiscount = 0
-    this.purchaseCart.forEach(item => {
-      this.cartTotalWithoutDiscount += item.amount * item.price
-    })
+    this.totalCart = 0;
+    this.shoppingCart.forEach(item => {
+      this.totalCart += item.amount * item.price
+    });
   }
 
   protected convertToValidPaymentMethod(paymentMethod: string): string {
@@ -130,31 +111,36 @@ export class InsertSalePage implements OnInit {
     }
   }
 
-  protected removeFromCart(productId: number): void {
-    const updatedSaleItems: CartItemResponse[] = []
+  protected finishSale(): void {
+    const dto: SaleRequest = {
+      discount: this.saleForm.controls['discount'].value === null ? 0 : this.saleForm.controls['discount'].value,
+      paymentMethod: this.convertToValidPaymentMethod(this.saleForm.controls['paymentMethod'].value),
+      items: []
+    }
 
-    for (let i = 0; i < this.purchaseCart.length; i++) {
-      if (this.purchaseCart[i].productId !== productId) {
-        updatedSaleItems.push(this.purchaseCart[i])
+    for (let i = 0; i < this.shoppingCart.length; i++) {
+      const item: SaleItemRequest = { productId: this.shoppingCart[i].productId, amount: this.shoppingCart[i].amount }
+      dto.items.push(item)
+    }
+
+    this.saleService.save(dto).subscribe({
+      next: (sale: Sale) => {
+        this.messageHelper.display('Venda cadastrada com sucesso!', 'success')
+        this.saleForm.reset()
+        this.shoppingCart = []
+        this.generateSaleReport(sale)
       }
-    }
+    });
 
-    if (updatedSaleItems.length === 0) {
-      this.saleForm.reset()
-    }
-
-    this.purchaseCart = updatedSaleItems;
-
-    this.calculateSubTotal()
   }
 
   protected generateSaleReport(sale: Sale): void {
     this.reportService.saleReport(sale.id).pipe(take(1)).subscribe({
       next: (response: Blob) => {
-        const reportWindow = window.URL.createObjectURL(response);
+        const reportWindow: string = window.URL.createObjectURL(response);
         window.open(reportWindow);
       },
     });
-
   }
+
 }
