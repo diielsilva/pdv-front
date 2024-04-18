@@ -1,5 +1,4 @@
 import { CurrencyPipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -8,6 +7,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
+import { take } from 'rxjs';
+import { ShoppingCartFormComponent } from '../../../common/components/sales/shopping-cart-form/shopping-cart-form.component';
+import { CartItemRequest } from '../../../common/dtos/cart/cart-item.request';
 import { CartItemResponse } from '../../../common/dtos/cart/cart-item.response';
 import { SaleItemRequest } from '../../../common/dtos/sales/sale-item.request';
 import { SaleRequest } from '../../../common/dtos/sales/sale.request';
@@ -22,7 +24,7 @@ import { SaleService } from '../../../core/services/sale.service';
 @Component({
   selector: 'app-insert',
   standalone: true,
-  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe, TableModule],
+  imports: [ReactiveFormsModule, InputNumberModule, InputTextModule, ButtonModule, PanelModule, DropdownModule, CurrencyPipe, TableModule, ShoppingCartFormComponent],
   templateUrl: './insert-sale.page.html',
   styleUrl: './insert-sale.page.css'
 })
@@ -32,18 +34,12 @@ export class InsertSalePage implements OnInit {
   protected reportService = inject(ReportService)
   protected messager = inject(MessageHelper)
   protected loader = inject(LoadingHelper)
-  protected cartForm!: FormGroup
   protected saleForm!: FormGroup
   protected paymentMethods = ['Cartão', 'Pix', 'Dinheiro']
   protected purchaseCart: CartItemResponse[] = []
   protected cartTotalWithoutDiscount = 0
 
   public ngOnInit(): void {
-    this.cartForm = new FormGroup({
-      productId: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(1)] }),
-      amount: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(1)] })
-    })
-
     this.saleForm = new FormGroup({
       discount: new FormControl<number | null>(null, { validators: [Validators.min(0), Validators.max(100)] }),
       paymentMethod: new FormControl<string | null>(null, { validators: [Validators.required] })
@@ -51,35 +47,30 @@ export class InsertSalePage implements OnInit {
 
   }
 
-  protected insertIntoCart(): void {
-    const productId: number = this.cartForm.controls['productId'].value
+  protected insertIntoShoppingCart(dto: CartItemRequest): void {
 
-    if (this.hasDuplicatedProducts()) {
+    if (this.isProductInShoppingCart(dto.productId)) {
       this.messager.display('O produto selecionado já está no carrinho!', 'error')
     } else {
-      this.productService.findActiveById(productId).subscribe({
+      this.productService.findActiveById(dto.productId).subscribe({
         next: (product: Product) => {
 
           const item: CartItemResponse = {
             productId: product.id,
             description: product.description,
-            amount: this.cartForm.controls['amount'].value,
+            amount: dto.amount,
             price: product.price
           }
 
           if (item.amount > product.amount) {
             this.messager.display('Não há estoque suficiente do produto selecionado!', 'error')
           } else {
-            this.purchaseCart.push(item)
-            this.cartForm.reset()
+            this.purchaseCart.push(item);
             this.calculateSubTotal()
           }
 
-        },
-        error: (response: HttpErrorResponse) => {
-          this.messager.display(response.error.message, 'error')
         }
-      })
+      });
 
     }
   }
@@ -99,27 +90,24 @@ export class InsertSalePage implements OnInit {
     this.saleService.save(dto).subscribe({
       next: (sale: Sale) => {
         this.messager.display('Venda cadastrada com sucesso!', 'success')
-        this.cartForm.reset()
         this.saleForm.reset()
         this.purchaseCart = []
         this.generateSaleReport(sale)
-      },
-      error: (response: HttpErrorResponse) => {
-        this.messager.display(response.error.message, 'error')
       }
-    })
+    });
 
   }
 
-  protected hasDuplicatedProducts(): boolean {
+  protected isProductInShoppingCart(id: number): boolean {
     for (let i = 0; i < this.purchaseCart.length; i++) {
-      if (this.purchaseCart[i].productId === this.cartForm.controls['productId'].value) {
-        return true
+
+      if (this.purchaseCart[i].productId === id) {
+        return true;
       }
 
     }
 
-    return false
+    return false;
   }
 
   protected calculateSubTotal(): void {
@@ -161,13 +149,12 @@ export class InsertSalePage implements OnInit {
   }
 
   protected generateSaleReport(sale: Sale): void {
-    this.reportService.saleReport(sale.id).subscribe({
+    this.reportService.saleReport(sale.id).pipe(take(1)).subscribe({
       next: (response: Blob) => {
-        const reportWindow = window.URL.createObjectURL(response)
-        window.open(reportWindow)
+        const reportWindow = window.URL.createObjectURL(response);
+        window.open(reportWindow);
       },
-      error: (response: HttpErrorResponse) => this.messager.display(response.error.message, 'error')
-    })
+    });
 
   }
 }

@@ -1,23 +1,4 @@
-<!--Insert Into Cart Panel-->
-<p-panel header="Inserir Produto" styleClass="mt-2">
-
-    <!--Cart Form-->
-    <form [formGroup]="cartForm">
-        <div class="mb-2">
-            <p-inputNumber formControlName="productId" placeholder="ID do Produto" styleClass="w-full"
-                class="w-full"></p-inputNumber>
-        </div>
-        <div class="mb-2">
-            <p-inputNumber formControlName="amount" placeholder="Quantidade" styleClass="w-full"
-                class="w-full"></p-inputNumber>
-        </div>
-        <p-button label="Adicionar ao Carrinho" [disabled]="loader.isLoading() || cartForm.invalid"
-            (onClick)="insertIntoCart()" [rounded]="true" styleClass="w-full"></p-button>
-    </form>
-    <!--End Cart Form-->
-
-</p-panel>
-<!--End Insert Into Cart Panel-->
+<app-shopping-cart-form (notifyParentToInsertIntoCart)="insertIntoShoppingCart($event)"></app-shopping-cart-form>
 
 <!--Cart Panel-->
 <p-panel header="Carrinho de Compras" styleClass="mt-2">
@@ -62,8 +43,8 @@
             <p-dropdown formControlName="paymentMethod" [options]="paymentMethods" placeholder="Forma de Pagamento"
                 class="w-full" styleClass="w-full"></p-dropdown>
         </div>
-        <p-button label="Finalizar Venda" [disabled]="loader.isLoading() || saleForm.invalid"
-            (onClick)="finishSale()" [rounded]="true" styleClass="w-full"></p-button>
+        <p-button label="Finalizar Venda" [disabled]="loader.isLoading() || saleForm.invalid" (onClick)="finishSale()"
+            [rounded]="true" styleClass="w-full"></p-button>
     </form>
     <!--End Finish Sale Form-->
 
