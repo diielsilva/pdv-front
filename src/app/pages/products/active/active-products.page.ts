@@ -75,7 +75,7 @@ export class ActiveProductsPage implements OnInit {
   protected updateProduct(dto: ProductRequest): void {
     this.productService.update(this.products[this.selectedProduct].id, dto).pipe(take(1)).subscribe({
       next: () => {
-        this.messageHelper.displayMessage('Produto editado com sucesso!', 'success');
+        this.messageHelper.display('Produto editado com sucesso!', 'success');
         this.findActiveProducts();
       }
     });
@@ -84,7 +84,7 @@ export class ActiveProductsPage implements OnInit {
   protected deleteProduct(id: number): void {
     this.productService.delete(id).pipe(take(1)).subscribe({
       next: () => {
-        this.messageHelper.displayMessage('Produto removido com sucesso!', 'success');
+        this.messageHelper.display('Produto removido com sucesso!', 'success');
         this.findActiveProducts();
       }
     });

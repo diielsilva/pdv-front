@@ -1,5 +1,5 @@
 <form [formGroup]="form" class="flex justify-content-center mb-2">
     <p-calendar formControlName="date" placeholder="Data..." dateFormat="dd/mm/yy"></p-calendar>
-    <p-button icon="pi pi-search" [rounded]="true" [disabled]="loadingHelper.isUnderLoading() || form.invalid"
+    <p-button icon="pi pi-search" [rounded]="true" [disabled]="loadingHelper.isLoading() || form.invalid"
         (onClick)="search()" styleClass="ml-2 cursor-pointer"></p-button>
 </form>

@@ -10,5 +10,7 @@ import { ToastModule } from 'primeng/toast';
   styleUrl: './message.component.css'
 })
 export class MessageComponent {
-  protected messager = inject(MessageHelper)
+
+  public constructor(protected messageHelper: MessageHelper) { }
+
 }

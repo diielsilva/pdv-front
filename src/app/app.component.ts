@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoadingComponent } from './common/components/loading/loading.component';
 import { MessageComponent } from './common/components/message/message.component';
-import { HeaderComponent } from './common/layout/header/header.component';
+import { HeaderComponent } from './common/components/header/header.component';
 
 @Component({
   selector: 'app-root',

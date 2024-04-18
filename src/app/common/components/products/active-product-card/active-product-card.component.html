@@ -5,9 +5,9 @@
     <ng-template pTemplate="footer">
         <div class="text-right">
             <p-button icon="pi pi-pencil" (onClick)="notifyParentToDisplayUpdateModal.emit()" [rounded]="true"
-                styleClass="mr-2 cursor-pointer"></p-button>
+                styleClass="mr-2 cursor-pointer" [disabled]="loadingHelper.isLoading()"></p-button>
             <p-button icon="pi pi-trash" (onClick)="notifyParentToDeleteProduct.emit(product.id)" [rounded]="true"
-                styleClass="mr-2 cursor-pointer"></p-button>
+                styleClass="mr-2 cursor-pointer" [disabled]="loadingHelper.isLoading()"></p-button>
         </div>
     </ng-template>
     }

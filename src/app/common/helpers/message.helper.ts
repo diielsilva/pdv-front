@@ -1,22 +1,22 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { MessageService } from "primeng/api";
 
 @Injectable({
     providedIn: 'root'
 })
 export class MessageHelper {
-    private messageService = inject(MessageService)
 
+    public constructor(private messageService: MessageService) { }
 
-    displayMessage(detail: string | undefined, severity: string): void {
+    public display(detail: string | undefined, severity: string): void {
         if (detail === undefined) {
-            detail = 'Não foi possível conectar ao servidor!'
+            detail = 'Não foi possível conectar ao servidor!';
         }
 
-        this.messageService.add({ detail, severity })
+        this.messageService.add({ detail, severity });
     }
 
-    hiddenMessage(): void {
-        this.messageService.clear()
+    public hidden(): void {
+        this.messageService.clear();
     }
 }

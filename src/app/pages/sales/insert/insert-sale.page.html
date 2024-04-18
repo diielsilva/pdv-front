@@ -1,72 +1,9 @@
-<!--Insert Into Cart Panel-->
-<p-panel header="Inserir Produto" styleClass="mt-2">
-
-    <!--Cart Form-->
-    <form [formGroup]="cartForm">
-        <div class="mb-2">
-            <p-inputNumber formControlName="productId" placeholder="ID do Produto" styleClass="w-full"
-                class="w-full"></p-inputNumber>
-        </div>
-        <div class="mb-2">
-            <p-inputNumber formControlName="amount" placeholder="Quantidade" styleClass="w-full"
-                class="w-full"></p-inputNumber>
-        </div>
-        <p-button label="Adicionar ao Carrinho" [disabled]="loader.isUnderLoading() || cartForm.invalid"
-            (onClick)="insertIntoCart()" [rounded]="true" styleClass="w-full"></p-button>
-    </form>
-    <!--End Cart Form-->
-
-</p-panel>
-<!--End Insert Into Cart Panel-->
-
-<!--Cart Panel-->
-<p-panel header="Carrinho de Compras" styleClass="mt-2">
-    @if(purchaseCart.length > 0) {
-    <p-table [value]="purchaseCart">
-        <ng-template pTemplate="header">
-            <tr>
-                <th>COD.</th>
-                <th>DESC.</th>
-                <th>QTD.</th>
-                <th>PREÇO</th>
-                <th>REM.</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-product>
-            <tr>
-                <td>{{ product.productId }}</td>
-                <td>{{ product.description }}</td>
-                <td>{{ product.amount }}</td>
-                <td>{{ product.price | currency }}</td>
-                <td><p-button icon="pi pi-trash" (onClick)="removeFromCart(product.productId)"
-                        [rounded]="true"></p-button></td>
-            </tr>
-        </ng-template>
-    </p-table>
-    <div class="text-center mt-3">Total Sem Desconto: {{ cartTotalWithoutDiscount | currency }}</div>
-    }
-</p-panel>
-<!--End Cart Panel-->
-
+<app-shopping-cart-form (notifyParentToInsertIntoCart)="insertIntoShoppingCart($event)"></app-shopping-cart-form>
 <!--Finish Sale Panel-->
-@if(purchaseCart.length > 0) {
-<p-panel header="Finalizar Venda" styleClass="mt-2">
+@if(shoppingCart.length > 0) {
+<app-shopping-cart-items [items]="shoppingCart" [total]="totalCart"
+    (notifyParentToDeleteFromCart)="deleteFromShoppingCart($event)"></app-shopping-cart-items>
 
-    <!--Finish Sale Form-->
-    <form [formGroup]="saleForm">
-        <div class="mb-2">
-            <p-inputNumber formControlName="discount" placeholder="Desconto (Em %)" class="w-full"
-                styleClass="w-full"></p-inputNumber>
-        </div>
-        <div class="mb-2">
-            <p-dropdown formControlName="paymentMethod" [options]="paymentMethods" placeholder="Forma de Pagamento"
-                class="w-full" styleClass="w-full"></p-dropdown>
-        </div>
-        <p-button label="Finalizar Venda" [disabled]="loader.isUnderLoading() || saleForm.invalid"
-            (onClick)="finishSale()" [rounded]="true" styleClass="w-full"></p-button>
-    </form>
-    <!--End Finish Sale Form-->
-
-</p-panel>
+<app-confirm-sale-form (notifyParentToConfirmSale)="save($event)"></app-confirm-sale-form>
 }
 <!--End Finish Panel-->

@@ -4,7 +4,7 @@
     <ng-template pTemplate="footer">
         <div class="text-right">
             <p-button (onClick)="notifyParentToReactivateProduct.emit(product.id)" icon="pi pi-refresh"
-                [disabled]="loadingHelper.isUnderLoading()" [rounded]="true" styleClass="cursor-pointer"></p-button>
+                [disabled]="loadingHelper.isLoading()" [rounded]="true" styleClass="cursor-pointer"></p-button>
         </div>
     </ng-template>
 

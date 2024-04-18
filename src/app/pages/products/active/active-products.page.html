@@ -4,7 +4,7 @@
         <div class="flex justify-content-between w-full">
             <p class="font-bold">Produtos Ativos</p>
             <p-button (onClick)="generateInventoryReport()" icon="pi pi-file-export"
-                [disabled]="loadingHelper.isUnderLoading()" [rounded]="true" styleClass="cursor-pointer"></p-button>
+                [disabled]="loadingHelper.isLoading()" [rounded]="true" styleClass="cursor-pointer"></p-button>
         </div>
     </ng-template>
 

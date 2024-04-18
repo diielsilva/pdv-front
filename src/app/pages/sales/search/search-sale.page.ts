@@ -51,7 +51,7 @@ export class SearchSalePage {
         this.sales.forEach(() => this.modalsPerSale.push(false));
 
         if (this.sales.length === 0) {
-          this.messageHelper.displayMessage('Não foram encontradas vendas com a data selecionada', 'error');
+          this.messageHelper.display('Não foram encontradas vendas com a data selecionada', 'error');
         }
       }
     });

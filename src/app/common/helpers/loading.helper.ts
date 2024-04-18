@@ -5,17 +5,17 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class LoadingHelper {
-  private isLoading = new BehaviorSubject<boolean>(false)
+  private loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  isUnderLoading(): boolean {
-    return this.isLoading.getValue()
+  public isLoading(): boolean {
+    return this.loading.getValue();
   }
 
-  displayLoading(): void {
-    this.isLoading.next(true)
+  public display(): void {
+    this.loading.next(true);
   }
 
-  hiddenLoading(): void {
-    this.isLoading.next(false)
+  public hidden(): void {
+    this.loading.next(false);
   }
 }

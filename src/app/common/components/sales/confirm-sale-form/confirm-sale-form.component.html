@@ -1,0 +1,10 @@
+<p-panel header="Confirmar Venda" styleClass="mt-2">
+    <form [formGroup]="form">
+        <p-inputNumber inputId="integeronly" formControlName="discount" placeholder="Desconto (%)"
+            styleClass="w-full mb-2" [min]="0" [max]="100" class="w-full"></p-inputNumber>
+        <p-dropdown formControlName="paymentMethod" placeholder="Forma de Pagamento" [options]="paymentOptions"
+            styleClass="w-full mb-2"></p-dropdown>
+        <p-button label="Confirmar" (onClick)="confirm()" [rounded]="true"
+            [disabled]="loadingHelper.isLoading() || form.invalid" styleClass="w-full cursor-pointer"></p-button>
+    </form>
+</p-panel>
