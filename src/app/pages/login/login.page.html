@@ -1,16 +1,1 @@
-<!-- Form Panel-->
-<p-panel header="Login">
-
-    <!--Login Form-->
-    <form [formGroup]="form">
-        <input pInputText formControlName="login" placeholder="Usuário" class="w-full m-1" />
-        <input type="password" pInputText formControlName="password" placeholder="Senha" class="w-full m-1">
-        <div class="w-full text-center">
-            <p-button label="Login" [disabled]="loadingHelper.isLoading() || form.invalid" (onClick)="login()"
-                styleClass="w-full m-1 cursor-pointer" [rounded]="true"></p-button>
-        </div>
-    </form>
-    <!--End Login Form-->
-
-</p-panel>
-<!--End Form Panel-->
+<app-login-form (notifyParentToLogin)="login($event)"></app-login-form>

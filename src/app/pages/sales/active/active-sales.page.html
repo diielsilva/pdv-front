@@ -2,7 +2,7 @@
 <p-panel header="Vendas Ativas" styleClass="mt-2">
     @for (sale of sales; track $index) {
     <app-active-sale-card [sale]="sale" (notifyParentToDisplayDetails)="displayModal($index)"
-        (notifyParentToDisplayReport)="displayReport($event)"></app-active-sale-card>
+        (notifyParentToDisplayReport)="report($event)"></app-active-sale-card>
     <app-sale-details-modal [isVisible]="modalsPerSale[$index]" [sale]="saleDetails"
         (notifyParentToCloseModal)="closeModal()"></app-sale-details-modal>
     } @empty {

@@ -2,9 +2,7 @@
 <p-panel header="Produtos Inativos" styleClass="mt-2">
     @for (product of products; track $index) {
     <app-inactive-product-card [product]="product"
-        (notifyParentToReactivateProduct)="reactivateProduct($event)"></app-inactive-product-card>
-    } @empty {
-    <dir class="text-center">Não há produtos inativos!</dir>
+        (notifyParentToReactivateProduct)="reactivate($event)"></app-inactive-product-card>
     }
 
     <!--Paginator-->

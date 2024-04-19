@@ -16,39 +16,38 @@ import { LoadingHelper } from '../../../helpers/loading.helper';
   styleUrl: './update-product-modal.component.css'
 })
 export class UpdateProductModalComponent implements OnInit {
-  protected updateForm!: FormGroup;
+  protected form!: FormGroup;
   @Input({ required: true }) public product!: Product;
   @Input({ required: true }) public isModalVisible!: boolean;
-  @Output() public notifyParentToUpdateProduct: EventEmitter<ProductRequest> = new EventEmitter<ProductRequest>();
-  @Output() public notifyParentToCloseUpdateModal: EventEmitter<void> = new EventEmitter<void>();
+  @Output() public notifyParentToUpdate: EventEmitter<ProductRequest> = new EventEmitter<ProductRequest>();
+  @Output() public notifyParentToCloseModal: EventEmitter<void> = new EventEmitter<void>();
 
   public constructor(protected loadingHelper: LoadingHelper) { }
 
   public ngOnInit(): void {
-    this.updateForm = new FormGroup({
+    this.form = new FormGroup({
       description: new FormControl<string | null>(this.product.description, { validators: [Validators.required] }),
       amount: new FormControl<number | null>(this.product.amount, { validators: [Validators.required, Validators.min(0)] }),
       price: new FormControl<number | null>(this.product.price, { validators: [Validators.required, Validators.min(0)] })
     });
   }
 
-  protected updateProduct(): void {
-    if (this.updateForm.valid) {
-      const dto: ProductRequest = {
-        description: this.updateForm.controls['description'].value,
-        amount: this.updateForm.controls['amount'].value,
-        price: this.updateForm.controls['price'].value
-      };
+  protected update(): void {
+    const dto: ProductRequest = {
+      description: this.form.controls['description'].value,
+      amount: this.form.controls['amount'].value,
+      price: this.form.controls['price'].value
+    };
 
-      this.notifyParentToUpdateProduct.emit(dto);
-    }
+    this.notifyParentToUpdate.emit(dto);
+
   }
 
-  protected closeUpdateModal(): void {
-    this.updateForm.controls['description'].setValue(this.product.description);
-    this.updateForm.controls['amount'].setValue(this.product.amount);
-    this.updateForm.controls['price'].setValue(this.product.price);
-    this.notifyParentToCloseUpdateModal.emit();
+  protected close(): void {
+    this.form.controls['description'].setValue(this.product.description);
+    this.form.controls['amount'].setValue(this.product.amount);
+    this.form.controls['price'].setValue(this.product.price);
+    this.notifyParentToCloseModal.emit();
   }
 
 }

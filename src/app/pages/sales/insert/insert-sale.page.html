@@ -1,9 +1,9 @@
-<app-shopping-cart-form (notifyParentToInsertIntoCart)="insertIntoShoppingCart($event)"></app-shopping-cart-form>
+<app-shopping-cart-form (notifyParentToInsertIntoCart)="addToShoppingCart($event)"></app-shopping-cart-form>
 <!--Finish Sale Panel-->
 @if(shoppingCart.length > 0) {
 <app-shopping-cart-items [items]="shoppingCart" [total]="totalCart"
     (notifyParentToDeleteFromCart)="deleteFromShoppingCart($event)"></app-shopping-cart-items>
 
-<app-confirm-sale-form (notifyParentToConfirmSale)="save($event)"></app-confirm-sale-form>
+<app-confirm-sale-form (notifyParentToConfirm)="save($event)"></app-confirm-sale-form>
 }
 <!--End Finish Panel-->
