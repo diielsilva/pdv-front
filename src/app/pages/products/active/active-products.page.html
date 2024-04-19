@@ -3,20 +3,19 @@
     <ng-template pTemplate="header">
         <div class="flex justify-content-between w-full">
             <p class="font-bold">Produtos Ativos</p>
-            <p-button (onClick)="generateInventoryReport()" icon="pi pi-file-export"
-                [disabled]="loadingHelper.isLoading()" [rounded]="true" styleClass="cursor-pointer"></p-button>
+            <p-button (onClick)="inventoryReport()" icon="pi pi-file-export" [disabled]="loadingHelper.isLoading()"
+                [rounded]="true" styleClass="cursor-pointer"></p-button>
         </div>
     </ng-template>
 
     @for (product of products; track $index) {
     <app-active-product-card [product]="product"
         [shouldDisplayActionButtons]="securityService.isSessionBelongsToAnAdmin() || securityService.isSessionBelongsToAManager()"
-        (notifyParentToDisplayUpdateModal)="displayUpdateModal($index)"
-        (notifyParentToDeleteProduct)="deleteProduct($event)"></app-active-product-card>
+        (notifyParentToDisplayUpdateModal)="displayModal($index)"
+        (notifyParentToDelete)="delete($event)"></app-active-product-card>
 
-    <app-update-product-modal [product]="product" [isModalVisible]="updateModalsPerProduct[$index]"
-        (notifyParentToUpdateProduct)="updateProduct($event)"
-        (notifyParentToCloseUpdateModal)="closeUpdateModal()"></app-update-product-modal>
+    <app-update-product-modal [product]="product" [isModalVisible]="modalsPerProduct[$index]"
+        (notifyParentToUpdate)="update($event)" (notifyParentToCloseModal)="closeModal()"></app-update-product-modal>
 
     }
 

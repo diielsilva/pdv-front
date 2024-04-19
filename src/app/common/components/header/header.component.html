@@ -1,5 +1,5 @@
 @if (securityService.isSessionBelongsToAnAdmin() || securityService.isSessionBelongsToAManager()) {
-<p-menubar [model]="superUserItems" styleClass="border-round-xl"></p-menubar>
+<p-menubar [model]="superUserOptions"></p-menubar>
 } @else if(securityService.hasActiveSession()) {
-<p-menubar [model]="commonUserItems" styleClass="border-round-xl"></p-menubar>
+<p-menubar [model]="commonUserOptions"></p-menubar>
 }

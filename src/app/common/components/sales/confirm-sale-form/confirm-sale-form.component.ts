@@ -17,7 +17,7 @@ import { LoadingHelper } from '../../../helpers/loading.helper';
 export class ConfirmSaleFormComponent implements OnInit {
   protected form!: FormGroup;
   protected paymentOptions: string[] = ['Cartão', 'Dinheiro', 'Pix'];
-  @Output() public notifyParentToConfirmSale: EventEmitter<ConfirmSaleRequest> = new EventEmitter<ConfirmSaleRequest>();
+  @Output() public notifyParentToConfirm: EventEmitter<ConfirmSaleRequest> = new EventEmitter<ConfirmSaleRequest>();
 
   public constructor(protected loadingHelper: LoadingHelper) { }
 
@@ -30,7 +30,7 @@ export class ConfirmSaleFormComponent implements OnInit {
 
   protected confirm(): void {
     const dto: ConfirmSaleRequest = { discount: this.form.controls['discount'].value, paymentMethod: this.form.controls['paymentMethod'].value };
-    this.notifyParentToConfirmSale.emit(dto);
+    this.notifyParentToConfirm.emit(dto);
     this.form.reset();
   }
 

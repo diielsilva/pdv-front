@@ -3,7 +3,7 @@
     <div class="flex justify-content-center mb-2">
 
         <!--Search Form-->
-        <app-search-products-form (notifyParentToSearchProducts)="searchProducts($event)"></app-search-products-form>
+        <app-search-products-form (notifyParentToSearch)="search($event)"></app-search-products-form>
         <!--End Search Form-->
 
     </div>
@@ -12,16 +12,13 @@
         @for (product of products; track $index) {
         <app-active-product-card [product]="product"
             [shouldDisplayActionButtons]="securityService.isSessionBelongsToAnAdmin()|| securityService.isSessionBelongsToAManager()"
-            (notifyParentToDisplayUpdateModal)="displayUpdateModal($index)"
-            (notifyParentToDeleteProduct)="deleteProduct($event)"></app-active-product-card>
+            (notifyParentToDisplayUpdateModal)="displayModal($index)"
+            (notifyParentToDelete)="delete($event)"></app-active-product-card>
 
         <app-update-product-modal [product]="product" [isModalVisible]="updateModalsPerProduct[$index]"
-            (notifyParentToCloseUpdateModal)="closeUpdateModal()"
-            (notifyParentToUpdateProduct)="updateProduct($event)"></app-update-product-modal>
-
+            (notifyParentToCloseModal)="closeModal()"
+            (notifyParentToUpdate)="update($event)"></app-update-product-modal>
         }
-
-
     </div>
 
     <!--Paginator-->

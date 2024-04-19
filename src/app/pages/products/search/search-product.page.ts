@@ -13,7 +13,6 @@ import { ProductService } from '../../../core/services/product.service';
 import { SecurityService } from '../../../core/services/security.service';
 import { Pageable } from '../../../core/utils/pageable';
 
-//TODO ADD PAGINATION AND SUBSCRIPTION CLEAN
 @Component({
   selector: 'app-search-product',
   standalone: true,
@@ -37,71 +36,70 @@ export class SearchProductPage {
     protected messageHelper: MessageHelper
   ) { }
 
-  protected displayUpdateModal(selectedProduct: number): void {
+  protected displayModal(selectedProduct: number): void {
     this.updateModalsPerProduct[selectedProduct] = true;
     this.selectedProduct = selectedProduct;
   }
 
-  protected closeUpdateModal(): void {
+  protected closeModal(): void {
     this.updateModalsPerProduct[this.selectedProduct] = false;
-    this.selectedProduct = -1;
   }
 
   protected changePage(currentPage: number): void {
     this.currentPage = currentPage;
-    this.searchProducts(this.searchedTerm);
+    this.search(this.searchedTerm);
   }
 
-  protected searchProducts(searchedTerm: string): void {
+  protected search(searchedTerm: string): void {
     if (this.searchedTerm !== searchedTerm) {
       this.hasPreviousProducts = false;
     }
 
+    this.products = [];
     this.searchedTerm = searchedTerm;
-    this.productService.
-      search(searchedTerm, this.currentPage).pipe(take(1)).subscribe({
-        next: (response: Pageable<Product>) => {
-          this.updateModalsPerProduct = [];
-          this.products = response.content;
-          this.totalOfPages = response.totalPages;
-          this.products.forEach(() => this.updateModalsPerProduct.push(false));
+    this.productService.search(searchedTerm, this.currentPage).pipe(take(1)).subscribe({
+      next: (response: Pageable<Product>) => {
+        this.updateModalsPerProduct = [];
+        this.products = response.content;
+        this.totalOfPages = response.totalPages;
+        this.products.forEach(() => this.updateModalsPerProduct.push(false));
 
-          if (this.products.length > 0) {
-            this.hasPreviousProducts = true;
-          }
-
-          if (this.currentPage > this.totalOfPages) {
-            this.currentPage = this.totalOfPages;
-            this.searchProducts(searchedTerm);
-          } else if (this.hasPreviousProducts && this.products.length === 0) {
-            this.currentPage = 1;
-            this.totalOfPages = 1;
-            this.searchedTerm = '';
-            this.hasPreviousProducts = false;
-          } else if (!this.hasPreviousProducts && this.products.length === 0) {
-            this.messageHelper.display('Não foram encontrados produtos com a descrição indicada!', 'error');
-          }
-
+        if (this.products.length > 0) {
+          this.hasPreviousProducts = true;
         }
-      });
-  }
 
-  protected updateProduct(dto: ProductRequest): void {
-    this.productService.update(this.products[this.selectedProduct].id, dto).pipe(take(1)).subscribe({
-      next: () => {
-        this.messageHelper.display('Produto alterado com sucesso!', 'success');
-        this.searchProducts(this.searchedTerm);
+        if (this.currentPage > this.totalOfPages) {
+          this.currentPage = this.totalOfPages;
+          this.search(searchedTerm);
+        } else if (this.hasPreviousProducts && this.products.length === 0) {
+          this.currentPage = 1;
+          this.totalOfPages = 1;
+          this.searchedTerm = '';
+          this.hasPreviousProducts = false;
+        } else if (!this.hasPreviousProducts && this.products.length === 0) {
+          this.messageHelper.display('Não foram encontrados produtos com a descrição indicada!', 'error');
+        }
+
       }
     });
   }
 
-  protected deleteProduct(id: number): void {
+  protected update(dto: ProductRequest): void {
+    this.productService.update(this.products[this.selectedProduct].id, dto).pipe(take(1)).subscribe({
+      next: () => {
+        this.messageHelper.display('Produto alterado com sucesso!', 'success');
+        this.search(this.searchedTerm);
+      }
+    });
+  }
+
+  protected delete(id: number): void {
     this.productService.delete(id).pipe(take(1)).subscribe({
       next: () => {
         this.messageHelper.display('Produto removido com successo!', 'success');
-        this.searchProducts(this.searchedTerm);
+        this.search(this.searchedTerm);
       }
-    })
+    });
   }
 
 }

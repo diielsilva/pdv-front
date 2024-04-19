@@ -29,15 +29,15 @@ export class InactiveProductsPage implements OnInit {
   ) { }
 
   public ngOnInit(): void {
-    this.findInactiveProducts();
+    this.findInactive();
   }
 
   protected changePage(currentPage: number): void {
     this.currentPage = currentPage;
-    this.findInactiveProducts();
+    this.findInactive();
   }
 
-  protected findInactiveProducts(): void {
+  protected findInactive(): void {
     this.productService.findInactive(this.currentPage).pipe(take(1)).subscribe({
       next: (response: Pageable<Product>) => {
         this.totalOfPages = response.totalPages;
@@ -45,17 +45,17 @@ export class InactiveProductsPage implements OnInit {
 
         if (this.currentPage > this.totalOfPages) {
           this.currentPage = this.totalOfPages;
-          this.findInactiveProducts();
+          this.findInactive();
         }
       },
     });
   }
 
-  protected reactivateProduct(id: number): void {
+  protected reactivate(id: number): void {
     this.productService.reactivate(id).pipe(take(1)).subscribe({
       next: () => {
         this.messageHelper.display('Produto reativado com sucesso!', 'success');
-        this.findInactiveProducts();
+        this.findInactive();
       }
     });
   }

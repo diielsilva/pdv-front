@@ -23,7 +23,7 @@ import { Pageable } from '../../../core/utils/pageable';
 })
 export class ActiveProductsPage implements OnInit {
   protected products: Product[] = [];
-  protected updateModalsPerProduct: boolean[] = [];
+  protected modalsPerProduct: boolean[] = [];
   protected selectedProduct: number = -1;
   protected currentPage: number = 1;
   protected totalOfPages: number = 1;
@@ -37,63 +37,63 @@ export class ActiveProductsPage implements OnInit {
   ) { }
 
   public ngOnInit(): void {
-    this.findActiveProducts();
+    this.findActive();
   }
 
-  protected displayUpdateModal(selectedProduct: number): void {
-    this.updateModalsPerProduct[selectedProduct] = true;
+  protected displayModal(selectedProduct: number): void {
+    this.modalsPerProduct[selectedProduct] = true;
     this.selectedProduct = selectedProduct;
   }
 
-  protected closeUpdateModal(): void {
-    this.updateModalsPerProduct[this.selectedProduct] = false;
+  protected closeModal(): void {
+    this.modalsPerProduct[this.selectedProduct] = false;
   }
 
   protected changePage(page: number): void {
     this.currentPage = page;
-    this.findActiveProducts();
+    this.findActive();
   }
 
-  protected findActiveProducts(): void {
+  protected findActive(): void {
+    this.products = [];
     this.productService.findActive(this.currentPage).pipe(take(1)).subscribe({
       next: (response: Pageable<Product>) => {
-        this.selectedProduct = -1;
-        this.updateModalsPerProduct = [];
+        this.modalsPerProduct = [];
         this.products = response.content;
-        this.products.forEach(() => this.updateModalsPerProduct.push(false));
+        this.products.forEach(() => this.modalsPerProduct.push(false));
         this.totalOfPages = response.totalPages;
 
         if (this.currentPage > this.totalOfPages) {
           this.currentPage = this.totalOfPages;
-          this.findActiveProducts();
+          this.findActive();
         }
 
       }
     });
   }
 
-  protected updateProduct(dto: ProductRequest): void {
+  protected update(dto: ProductRequest): void {
     this.productService.update(this.products[this.selectedProduct].id, dto).pipe(take(1)).subscribe({
       next: () => {
         this.messageHelper.display('Produto editado com sucesso!', 'success');
-        this.findActiveProducts();
+        this.findActive();
       }
     });
   }
 
-  protected deleteProduct(id: number): void {
+  protected delete(id: number): void {
     this.productService.delete(id).pipe(take(1)).subscribe({
       next: () => {
         this.messageHelper.display('Produto removido com sucesso!', 'success');
-        this.findActiveProducts();
+        this.findActive();
       }
     });
   }
 
-  protected generateInventoryReport(): void {
+  protected inventoryReport(): void {
     this.reportService.inventoryReport().pipe(take(1)).subscribe({
       next: (response: Blob) => {
-        const reportWindow = window.URL.createObjectURL(response);
+        const reportWindow: string = window.URL.createObjectURL(response);
         window.open(reportWindow);
       }
     });

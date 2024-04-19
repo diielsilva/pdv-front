@@ -12,20 +12,20 @@ import { LoadingHelper } from '../../../helpers/loading.helper';
   styleUrl: './search-products-form.component.css'
 })
 export class SearchProductsFormComponent implements OnInit {
-  protected searchForm!: FormGroup;
-  @Output() public notifyParentToSearchProducts: EventEmitter<string> = new EventEmitter<string>();
+  protected form!: FormGroup;
+  @Output() public notifyParentToSearch: EventEmitter<string> = new EventEmitter<string>();
 
   public constructor(protected loadingHelper: LoadingHelper) { }
 
   public ngOnInit(): void {
-    this.searchForm = new FormGroup({
+    this.form = new FormGroup({
       description: new FormControl<string | null>('', { validators: [Validators.required] })
     });
   }
 
-  protected searchProduct(): void {
-    const searchedTerm = this.searchForm.controls['description'].value;
-    this.notifyParentToSearchProducts.emit(searchedTerm);
+  protected search(): void {
+    const searchedTerm = this.form.controls['description'].value;
+    this.notifyParentToSearch.emit(searchedTerm);
   }
 
 }

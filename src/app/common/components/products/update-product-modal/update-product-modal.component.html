@@ -1,22 +1,16 @@
-<p-dialog [(visible)]="isModalVisible" [modal]="true" [draggable]="false" (onHide)="closeUpdateModal()"
-    header="Editar Produto">
-    <form [formGroup]="updateForm">
-        <div class="mb-2">
-            <input pInputText formControlName="description" placeholder="Descrição">
-        </div>
+<p-dialog [(visible)]="isModalVisible" [modal]="true" [draggable]="false" (onHide)="close()" header="Editar Produto">
 
-        <div class="mb-2">
-            <p-inputNumber formControlName="amount" placeholder="Quantidade" [maxFractionDigits]="0"
-                [min]="0"></p-inputNumber>
-        </div>
+    <form [formGroup]="form">
+        <input pInputText formControlName="description" placeholder="Descrição" class="mb-2 w-full">
 
-        <div class="mb-2">
-            <p-inputNumber formControlName="price" placeholder="Preço" [minFractionDigits]="2" [maxFractionDigits]="2"
-                [min]="0"></p-inputNumber>
-        </div>
+        <p-inputNumber inputId="integeronly" formControlName="amount" placeholder="Quantidade" [min]="0" class="w-full"
+            styleClass="mb-2 w-full"></p-inputNumber>
 
-        <p-button label="Editar" (onClick)="updateProduct()"
-            [disabled]="loadingHelper.isLoading() || updateForm.invalid" [rounded]="true"
-            styleClass="w-full"></p-button>
+        <p-inputNumber formControlName="price" placeholder="Preço" [minFractionDigits]="2" [maxFractionDigits]="2"
+            [min]="0" styleClass="mb-2 w-full" class="w-full"></p-inputNumber>
+
+        <p-button label="Editar" (onClick)="update()" [disabled]="loadingHelper.isLoading() || form.invalid"
+            [rounded]="true" styleClass="w-full cursor-pointer"></p-button>
     </form>
+
 </p-dialog>

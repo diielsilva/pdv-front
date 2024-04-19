@@ -35,7 +35,7 @@ export class InsertSalePage {
     protected loadingHelper: LoadingHelper
   ) { }
 
-  protected insertIntoShoppingCart(dto: CartItemRequest): void {
+  protected addToShoppingCart(dto: CartItemRequest): void {
     if (this.isProductInShoppingCart(dto.productId)) {
       this.messageHelper.display('O produto selecionado já está no carrinho!', 'error');
     } else {
@@ -108,13 +108,13 @@ export class InsertSalePage {
       next: (response: Sale) => {
         this.messageHelper.display('Venda cadastrada com sucesso!', 'success');
         this.shoppingCart = [];
-        this.generateSaleReport(response);
+        this.report(response);
       }
     });
 
   }
 
-  protected generateSaleReport(sale: Sale): void {
+  protected report(sale: Sale): void {
     this.reportService.saleReport(sale.id).pipe(take(1)).subscribe({
       next: (response: Blob) => {
         const reportWindow: string = window.URL.createObjectURL(response);

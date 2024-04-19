@@ -16,7 +16,7 @@ export class ActiveProductCardComponent {
   @Input({ required: true }) public product!: Product;
   @Input({ required: true }) public shouldDisplayActionButtons!: boolean;
   @Output() public notifyParentToDisplayUpdateModal: EventEmitter<void> = new EventEmitter<void>();
-  @Output() public notifyParentToDeleteProduct: EventEmitter<number> = new EventEmitter<number>();
+  @Output() public notifyParentToDelete: EventEmitter<number> = new EventEmitter<number>();
 
   public constructor(protected loadingHelper: LoadingHelper) { }
 
