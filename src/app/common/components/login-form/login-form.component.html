@@ -1,0 +1,10 @@
+<p-panel header="Login">
+
+    <form [formGroup]="form">
+        <input pInputText formControlName="login" placeholder="Usuário" class="w-full mb-2" />
+        <input type="password" pInputText formControlName="password" placeholder="Senha" class="w-full mb-2">
+        <p-button label="Entrar" [disabled]="loadingHelper.isLoading() || form.invalid" (onClick)="login()"
+            styleClass="w-full cursor-pointer" [rounded]="true"></p-button>
+    </form>
+
+</p-panel>
