@@ -1,0 +1,16 @@
+<p-panel header="Inserir Produto" styleClass="mt-2">
+
+    <form [formGroup]="form">
+        <input pInputText formControlName="description" placeholder="Descrição" class="w-full mb-2" />
+
+        <p-inputNumber inputId="integeronly" formControlName="amount" placeholder="Quantidade" [min]="0" class="w-full"
+            styleClass="w-full mb-2"></p-inputNumber>
+
+        <p-inputNumber formControlName="price" [minFractionDigits]="2" [maxFractionDigits]="2" [min]="0"
+            placeholder="Preço" class="w-full" styleClass="w-full mb-2"></p-inputNumber>
+
+        <p-button label="Cadastrar" (onClick)="insert()" [disabled]="loadingHelper.isLoading() || form.invalid"
+            styleClass="w-full cursor-pointer" [rounded]="true"></p-button>
+    </form>
+
+</p-panel>
