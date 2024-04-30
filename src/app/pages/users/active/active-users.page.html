@@ -1,0 +1,13 @@
+<p-panel header="Usuários Ativos" styleClass="mt-2">
+
+    @for (user of users; track $index) {
+    <app-active-user-card [user]="user" (notifyParentToDisplayModal)="openModal($index)"></app-active-user-card>
+    <app-user-performance-report-modal [isVisible]="modalsPerUser[$index]" [user]="user"
+        (notifyParentToCloseModal)="closeModal()"
+        (notifyParentToDisplayReport)="performanceReport($event)"></app-user-performance-report-modal>
+    }
+
+    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
+        (notifyParentToChangePage)="changePage($event)"></app-paginator>
+
+</p-panel>

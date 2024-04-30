@@ -10,6 +10,7 @@ import { SearchProductPage } from './pages/products/search/search-product.page';
 import { ActiveSalesPage } from './pages/sales/active/active-sales.page';
 import { InsertSalePage } from './pages/sales/insert/insert-sale.page';
 import { SearchSalePage } from './pages/sales/search/search-sale.page';
+import { ActiveUsersPage } from './pages/users/active/active-users.page';
 
 export const routes: Routes = [
     { path: '', pathMatch: 'full', component: LoginPage },
@@ -30,6 +31,11 @@ export const routes: Routes = [
                     { path: 'insert', component: InsertSalePage },
                     { path: 'active', component: ActiveSalesPage },
                     { path: 'search', component: SearchSalePage }
+                ]
+            },
+            {
+                path: 'users', children: [
+                    { path: 'active', canActivate: [superUserGuard], component: ActiveUsersPage }
                 ]
             }
         ]
