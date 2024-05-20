@@ -42,7 +42,7 @@ export class HeaderComponent {
         ]
       },
       {
-  
+
         label: 'Sair',
         command: () => this.router.navigate([''])
       }
@@ -79,10 +79,16 @@ export class HeaderComponent {
         ]
       },
       {
+        label: 'Usuários',
+        items: [
+          { label: 'Ativos', command: () => this.router.navigate(['pdv/users/active']) }
+        ]
+      },
+      {
         label: 'Sair',
         command: () => this.router.navigate([''])
       }
     ];
 
-   }
+  }
 }

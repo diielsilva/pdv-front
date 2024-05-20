@@ -1,0 +1,11 @@
+<div>
+    <span class="font-bold">Nome: </span><span>{{ user.name }}</span>
+</div>
+<div>
+    <span class="font-bold">Criado Em: </span><span>{{ user.createdAt | date: 'dd/MM/yy HH:mm' }}</span>
+</div>
+@if (user.deletedAt !== null) {
+<div>
+    <span class="font-bold">Removido Em: </span><span>{{ user.deletedAt | date: 'dd/MM/yy HH:mm' }}</span>
+</div>
+}

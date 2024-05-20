@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
 import { take } from 'rxjs';
 import { ConfirmSaleFormComponent } from '../../../common/components/sales/confirm-sale-form/confirm-sale-form.component';
@@ -23,8 +23,8 @@ import { SaleService } from '../../../core/services/sale.service';
   templateUrl: './insert-sale.page.html',
   styleUrl: './insert-sale.page.css'
 })
-export class InsertSalePage {
-  protected shoppingCart: CartItemResponse[] = [];
+export class InsertSalePage implements OnInit {
+  protected shoppingCart!: CartItemResponse[];
   protected totalCart: number = 0;
 
   public constructor(
@@ -35,31 +35,56 @@ export class InsertSalePage {
     protected loadingHelper: LoadingHelper
   ) { }
 
+  public ngOnInit(): void {
+    if (localStorage.getItem('shoppingCart') === null) {
+      this.shoppingCart = [];
+    } else {
+      const cart: CartItemResponse[] = JSON.parse(localStorage.getItem('shoppingCart')!);
+      this.shoppingCart = cart;
+      this.calculateSubTotal();
+    }
+  }
+
   protected addToShoppingCart(dto: CartItemRequest): void {
     if (this.isProductInShoppingCart(dto.productId)) {
-      this.messageHelper.display('O produto selecionado já está no carrinho!', 'error');
-    } else {
-      this.productService.findActiveById(dto.productId).pipe(take(1)).subscribe({
-        next: (response: Product) => {
-
-          const item: CartItemResponse = {
-            productId: response.id, description: response.description, amount: dto.amount, price: response.price
-          }
-
-          if (item.amount > response.amount) {
-            this.messageHelper.display('Não há estoque suficiente do produto selecionado!', 'error')
-          } else {
-            this.shoppingCart.push(item);
-            this.calculateSubTotal();
-          }
+      this.shoppingCart.forEach(item => {
+        if (item.productId === dto.productId) {
+          dto.amount += item.amount;
         }
       });
     }
+
+    this.productService.findActiveById(dto.productId).pipe(take(1)).subscribe({
+      next: (response: Product) => {
+
+        const item: CartItemResponse = {
+          productId: response.id, description: response.description, amount: dto.amount, price: response.price
+        }
+
+        if (item.amount > response.amount) {
+          this.messageHelper.display('Não há estoque suficiente do produto selecionado!', 'error')
+        } else if (this.isProductInShoppingCart(dto.productId)) {
+          this.shoppingCart.forEach(item => {
+            if (item.productId === dto.productId) {
+              item.amount = dto.amount;
+            }
+          });
+          this.calculateSubTotal();
+          localStorage.setItem('shoppingCart', JSON.stringify(this.shoppingCart));
+        } else {
+          this.shoppingCart.push(item);
+          this.calculateSubTotal();
+          localStorage.setItem('shoppingCart', JSON.stringify(this.shoppingCart));
+        }
+      }
+    });
+
   }
 
   protected deleteFromShoppingCart(dto: CartItemResponse): void {
     const shoppingCart: CartItemResponse[] = this.shoppingCart.filter((item: CartItemResponse) => item.productId !== dto.productId);
     this.shoppingCart = shoppingCart;
+    localStorage.setItem('shoppingCart', JSON.stringify(this.shoppingCart));
     this.calculateSubTotal();
   }
 
@@ -108,6 +133,7 @@ export class InsertSalePage {
       next: (response: Sale) => {
         this.messageHelper.display('Venda cadastrada com sucesso!', 'success');
         this.shoppingCart = [];
+        localStorage.removeItem('shoppingCart');
         this.report(response);
       }
     });

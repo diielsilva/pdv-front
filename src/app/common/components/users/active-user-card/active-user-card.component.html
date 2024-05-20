@@ -1,0 +1,10 @@
+<p-panel styleClass="mb-2">
+    <app-user-card-content [user]="user"></app-user-card-content>
+
+    <ng-template pTemplate="footer">
+        <div class="text-right">
+            <p-button icon="pi pi-chart-line" [rounded]="true" [disabled]="loadingHelper.isLoading()"
+            (onClick)="notifyParentToDisplayModal.emit()" styleClass="cursor-pointer"></p-button>
+        </div>
+    </ng-template>
+</p-panel>
