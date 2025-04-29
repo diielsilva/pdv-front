@@ -144,7 +144,12 @@ export class InsertSalePage implements OnInit {
     this.reportService.saleReport(sale.id).pipe(take(1)).subscribe({
       next: (response: Blob) => {
         const reportWindow: string = window.URL.createObjectURL(response);
-        window.open(reportWindow);
+        const reportTab = window.open(reportWindow);
+        
+        //After render the page, open print dialog
+        setTimeout(() => {
+          reportTab?.print();
+        }, 1000);
       },
     });
   }
