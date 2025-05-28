@@ -19,9 +19,14 @@ import { SaleService } from '../../../core/services/sale.service';
 @Component({
   selector: 'app-insert',
   standalone: true,
-  imports: [PanelModule, ShoppingCartFormComponent, ShoppingCartItemsComponent, ConfirmSaleFormComponent],
+  imports: [
+    PanelModule,
+    ShoppingCartFormComponent,
+    ShoppingCartItemsComponent,
+    ConfirmSaleFormComponent,
+  ],
   templateUrl: './insert-sale.page.html',
-  styleUrl: './insert-sale.page.css'
+  styleUrl: './insert-sale.page.css',
 })
 export class InsertSalePage implements OnInit {
   protected shoppingCart!: CartItemResponse[];
@@ -33,13 +38,15 @@ export class InsertSalePage implements OnInit {
     protected reportService: ReportService,
     protected messageHelper: MessageHelper,
     protected loadingHelper: LoadingHelper
-  ) { }
+  ) {}
 
   public ngOnInit(): void {
     if (localStorage.getItem('shoppingCart') === null) {
       this.shoppingCart = [];
     } else {
-      const cart: CartItemResponse[] = JSON.parse(localStorage.getItem('shoppingCart')!);
+      const cart: CartItemResponse[] = JSON.parse(
+        localStorage.getItem('shoppingCart')!
+      );
       this.shoppingCart = cart;
       this.calculateSubTotal();
     }
@@ -47,42 +54,57 @@ export class InsertSalePage implements OnInit {
 
   protected addToShoppingCart(dto: CartItemRequest): void {
     if (this.isProductInShoppingCart(dto.productId)) {
-      this.shoppingCart.forEach(item => {
+      this.shoppingCart.forEach((item) => {
         if (item.productId === dto.productId) {
           dto.amount += item.amount;
         }
       });
     }
 
-    this.productService.findActiveById(dto.productId).pipe(take(1)).subscribe({
-      next: (response: Product) => {
+    this.productService
+      .findActiveById(dto.productId)
+      .pipe(take(1))
+      .subscribe({
+        next: (response: Product) => {
+          const item: CartItemResponse = {
+            productId: response.id,
+            description: response.description,
+            amount: dto.amount,
+            price: response.price,
+          };
 
-        const item: CartItemResponse = {
-          productId: response.id, description: response.description, amount: dto.amount, price: response.price
-        }
-
-        if (item.amount > response.amount) {
-          this.messageHelper.display('Não há estoque suficiente do produto selecionado!', 'error')
-        } else if (this.isProductInShoppingCart(dto.productId)) {
-          this.shoppingCart.forEach(item => {
-            if (item.productId === dto.productId) {
-              item.amount = dto.amount;
-            }
-          });
-          this.calculateSubTotal();
-          localStorage.setItem('shoppingCart', JSON.stringify(this.shoppingCart));
-        } else {
-          this.shoppingCart.push(item);
-          this.calculateSubTotal();
-          localStorage.setItem('shoppingCart', JSON.stringify(this.shoppingCart));
-        }
-      }
-    });
-
+          if (item.amount > response.amount) {
+            this.messageHelper.display(
+              'Não há estoque suficiente do produto selecionado!',
+              'error'
+            );
+          } else if (this.isProductInShoppingCart(dto.productId)) {
+            this.shoppingCart.forEach((item) => {
+              if (item.productId === dto.productId) {
+                item.amount = dto.amount;
+              }
+            });
+            this.calculateSubTotal();
+            localStorage.setItem(
+              'shoppingCart',
+              JSON.stringify(this.shoppingCart)
+            );
+          } else {
+            this.shoppingCart.push(item);
+            this.calculateSubTotal();
+            localStorage.setItem(
+              'shoppingCart',
+              JSON.stringify(this.shoppingCart)
+            );
+          }
+        },
+      });
   }
 
   protected deleteFromShoppingCart(dto: CartItemResponse): void {
-    const shoppingCart: CartItemResponse[] = this.shoppingCart.filter((item: CartItemResponse) => item.productId !== dto.productId);
+    const shoppingCart: CartItemResponse[] = this.shoppingCart.filter(
+      (item: CartItemResponse) => item.productId !== dto.productId
+    );
     this.shoppingCart = shoppingCart;
     localStorage.setItem('shoppingCart', JSON.stringify(this.shoppingCart));
     this.calculateSubTotal();
@@ -100,8 +122,8 @@ export class InsertSalePage implements OnInit {
 
   protected calculateSubTotal(): void {
     this.totalCart = 0;
-    this.shoppingCart.forEach(item => {
-      this.totalCart += item.amount * item.price
+    this.shoppingCart.forEach((item) => {
+      this.totalCart += item.amount * item.price;
     });
   }
 
@@ -122,36 +144,43 @@ export class InsertSalePage implements OnInit {
     const sale: SaleRequest = {
       discount: dto.discount === null ? 0 : dto.discount,
       paymentMethod: this.transformPaymentMethod(dto.paymentMethod),
-      items: []
+      items: [],
     };
 
     this.shoppingCart.forEach((item: CartItemResponse) => {
       sale.items.push({ productId: item.productId, amount: item.amount });
     });
 
-    this.saleService.save(sale).pipe(take(1)).subscribe({
-      next: (response: Sale) => {
-        this.messageHelper.display('Venda cadastrada com sucesso!', 'success');
-        this.shoppingCart = [];
-        localStorage.removeItem('shoppingCart');
-        this.report(response);
-      }
-    });
-
+    this.saleService
+      .save(dto.isOnline, dto.hasDelivery, sale)
+      .pipe(take(1))
+      .subscribe({
+        next: (response: Sale) => {
+          this.messageHelper.display(
+            'Venda cadastrada com sucesso!',
+            'success'
+          );
+          this.shoppingCart = [];
+          localStorage.removeItem('shoppingCart');
+          this.report(response);
+        },
+      });
   }
 
   protected report(sale: Sale): void {
-    this.reportService.saleReport(sale.id).pipe(take(1)).subscribe({
-      next: (response: Blob) => {
-        const reportWindow: string = window.URL.createObjectURL(response);
-        const reportTab = window.open(reportWindow);
-        
-        //After render the page, open print dialog
-        setTimeout(() => {
-          reportTab?.print();
-        }, 1000);
-      },
-    });
-  }
+    this.reportService
+      .saleReport(sale.id)
+      .pipe(take(1))
+      .subscribe({
+        next: (response: Blob) => {
+          const reportWindow: string = window.URL.createObjectURL(response);
+          const reportTab = window.open(reportWindow);
 
+          //After render the page, open print dialog
+          setTimeout(() => {
+            reportTab?.print();
+          }, 1000);
+        },
+      });
+  }
 }
