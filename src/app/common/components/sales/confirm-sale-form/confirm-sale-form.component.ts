@@ -29,7 +29,7 @@ import { LoadingHelper } from '../../../helpers/loading.helper';
 })
 export class ConfirmSaleFormComponent implements OnInit {
   protected form!: FormGroup;
-  protected paymentOptions: string[] = ['Cartão', 'Dinheiro', 'Pix'];
+  protected paymentOptions: string[] = ['Cartão', 'Dinheiro', 'Pix', 'Link'];
   @Output() public notifyParentToConfirm: EventEmitter<ConfirmSaleRequest> =
     new EventEmitter<ConfirmSaleRequest>();
 

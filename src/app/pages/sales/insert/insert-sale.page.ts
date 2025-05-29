@@ -135,6 +135,8 @@ export class InsertSalePage implements OnInit {
         return 'PIX';
       case 'Dinheiro':
         return 'CASH';
+      case 'Link':
+        return 'LINK';
       default:
         return '';
     }
