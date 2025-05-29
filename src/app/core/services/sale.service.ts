@@ -8,28 +8,41 @@ import { Sale } from '../models/sale';
 import { Pageable } from '../utils/pageable';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SaleService {
   protected url: string = `${environment.api}/sales`;
 
-  public constructor(private httpClient: HttpClient) { }
+  public constructor(private httpClient: HttpClient) {}
 
-  public save(dto: SaleRequest): Observable<Sale> {
-    return this.httpClient.post<Sale>(this.url, dto);
+  public save(
+    isOnline: boolean,
+    hasDelivery: boolean,
+    dto: SaleRequest
+  ): Observable<Sale> {
+    let url = isOnline
+      ? `${this.url}/online?hasDelivery=${hasDelivery}`
+      : this.url;
+    return this.httpClient.post<Sale>(url, dto);
   }
 
   public findActive(page: number): Observable<Pageable<Sale>> {
-    return this.httpClient.get<Pageable<Sale>>(`${this.url}/active?page=${this.calculatePage(page)}`);
+    return this.httpClient.get<Pageable<Sale>>(
+      `${this.url}/active?page=${this.calculatePage(page)}`
+    );
   }
 
   public search(date: Date): Observable<Sale[]> {
     const isoDate = date.toISOString().replace('Z', '');
-    return this.httpClient.get<Sale[]>(`${this.url}/active/search?date=${isoDate}`);
+    return this.httpClient.get<Sale[]>(
+      `${this.url}/active/search?date=${isoDate}`
+    );
   }
 
   public details(id: number): Observable<SaleDetailsResponse> {
-    return this.httpClient.get<SaleDetailsResponse>(`${this.url}/details/${id}`);
+    return this.httpClient.get<SaleDetailsResponse>(
+      `${this.url}/details/${id}`
+    );
   }
 
   public delete(id: number): Observable<void> {
@@ -39,5 +52,4 @@ export class SaleService {
   private calculatePage(page: number): number {
     return page - 1;
   }
-
 }

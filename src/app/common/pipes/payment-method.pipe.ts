@@ -2,21 +2,21 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'paymentMethod',
-  standalone: true
+  standalone: true,
 })
 export class PaymentMethodPipe implements PipeTransform {
-
   transform(value: string, ...args: string[]): string {
     switch (value) {
       case 'CARD':
-        return 'Cartão'
+        return 'Cartão';
       case 'PIX':
-        return 'Pix'
+        return 'Pix';
       case 'CASH':
-        return 'Dinheiro'
+        return 'Dinheiro';
+      case 'LINK':
+        return 'Link';
       default:
-        return 'Método de Pagamento Inválido'
+        return 'Método de Pagamento Inválido';
     }
   }
-
 }
