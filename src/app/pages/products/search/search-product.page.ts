@@ -1,4 +1,7 @@
+import { CurrencyPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { DialogModule } from 'primeng/dialog';
 import { PanelModule } from 'primeng/panel';
 import { take } from 'rxjs';
 import { PaginatorComponent } from '../../../common/components/paginator/paginator.component';
@@ -16,12 +19,22 @@ import { Pageable } from '../../../core/utils/pageable';
 @Component({
   selector: 'app-search-product',
   standalone: true,
-  imports: [PanelModule, PaginatorComponent, SearchProductsFormComponent, ActiveProductCardComponent, UpdateProductModalComponent],
+  imports: [
+    PanelModule,
+    PaginatorComponent,
+    SearchProductsFormComponent,
+    ActiveProductCardComponent,
+    UpdateProductModalComponent,
+    DialogModule,
+    CurrencyPipe,
+  ],
   templateUrl: './search-product.page.html',
-  styleUrl: './search-product.page.css'
+  styleUrl: './search-product.page.css',
 })
 export class SearchProductPage {
   protected products: Product[] = [];
+  protected productById: Product | null = null;
+  protected shouldDisplayProductByIdModal: boolean = false;
   protected updateModalsPerProduct: boolean[] = [];
   protected currentPage: number = 1;
   protected totalOfPages: number = 1;
@@ -34,7 +47,7 @@ export class SearchProductPage {
     protected securityService: SecurityService,
     protected loadingHelper: LoadingHelper,
     protected messageHelper: MessageHelper
-  ) { }
+  ) {}
 
   protected displayModal(selectedProduct: number): void {
     this.updateModalsPerProduct[selectedProduct] = true;
@@ -51,55 +64,98 @@ export class SearchProductPage {
   }
 
   protected search(searchedTerm: string): void {
+    if (!Number.isNaN(Number.parseInt(searchedTerm))) {
+      const id: number = Number.parseInt(searchedTerm);
+
+      this.currentPage = 1;
+      this.totalOfPages = 1;
+      this.searchedTerm = '';
+      this.hasPreviousProducts = false;
+      this.products = [];
+
+      this.productService
+        .findActiveById(id)
+        .pipe(take(1))
+        .subscribe({
+          next: (product: Product) => {
+            this.shouldDisplayProductByIdModal = true;
+            this.productById = product;
+          },
+        });
+
+      return;
+    }
+
     if (this.searchedTerm !== searchedTerm) {
       this.hasPreviousProducts = false;
     }
 
     this.products = [];
     this.searchedTerm = searchedTerm;
-    this.productService.search(searchedTerm, this.currentPage).pipe(take(1)).subscribe({
-      next: (response: Pageable<Product>) => {
-        this.updateModalsPerProduct = [];
-        this.products = response.content;
-        this.totalOfPages = response.totalPages;
-        this.products.forEach(() => this.updateModalsPerProduct.push(false));
+    this.productService
+      .search(searchedTerm, this.currentPage)
+      .pipe(take(1))
+      .subscribe({
+        next: (response: Pageable<Product>) => {
+          this.updateModalsPerProduct = [];
+          this.products = response.content;
+          this.totalOfPages = response.totalPages;
+          this.products.forEach(() => this.updateModalsPerProduct.push(false));
 
-        if (this.products.length > 0) {
-          this.hasPreviousProducts = true;
-        }
+          if (this.products.length > 0) {
+            this.hasPreviousProducts = true;
+          }
 
-        if (this.currentPage > this.totalOfPages) {
-          this.currentPage = this.totalOfPages;
-          this.search(searchedTerm);
-        } else if (this.hasPreviousProducts && this.products.length === 0) {
-          this.currentPage = 1;
-          this.totalOfPages = 1;
-          this.searchedTerm = '';
-          this.hasPreviousProducts = false;
-        } else if (!this.hasPreviousProducts && this.products.length === 0) {
-          this.messageHelper.display('Não foram encontrados produtos com a descrição indicada!', 'error');
-        }
+          if (this.currentPage > this.totalOfPages) {
+            this.currentPage = this.totalOfPages;
+            this.search(searchedTerm);
+          } else if (this.hasPreviousProducts && this.products.length === 0) {
+            this.currentPage = 1;
+            this.totalOfPages = 1;
+            this.searchedTerm = '';
+            this.hasPreviousProducts = false;
+          } else if (!this.hasPreviousProducts && this.products.length === 0) {
+            this.messageHelper.display(
+              'Não foram encontrados produtos com a descrição indicada!',
+              'error'
+            );
+          }
+        },
+      });
+  }
 
-      }
-    });
+  protected hideProductById(): void {
+    this.shouldDisplayProductByIdModal = false;
+    this.productById = null;
   }
 
   protected update(dto: ProductRequest): void {
-    this.productService.update(this.products[this.selectedProduct].id, dto).pipe(take(1)).subscribe({
-      next: () => {
-        this.messageHelper.display('Produto alterado com sucesso!', 'success');
-        this.search(this.searchedTerm);
-      }
-    });
+    this.productService
+      .update(this.products[this.selectedProduct].id, dto)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.messageHelper.display(
+            'Produto alterado com sucesso!',
+            'success'
+          );
+          this.search(this.searchedTerm);
+        },
+      });
   }
 
   protected delete(id: number): void {
-    this.productService.delete(id).pipe(take(1)).subscribe({
-      next: () => {
-        this.messageHelper.display('Produto removido com successo!', 'success');
-        this.search(this.searchedTerm);
-      }
-    });
+    this.productService
+      .delete(id)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.messageHelper.display(
+            'Produto removido com successo!',
+            'success'
+          );
+          this.search(this.searchedTerm);
+        },
+      });
   }
-
 }

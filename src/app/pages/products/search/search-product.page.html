@@ -1,30 +1,54 @@
 <!--Search Panel-->
 <p-panel header="Pesquisar Produto" styleClass="mt-2">
-    <div class="flex justify-content-center mb-2">
+  <div class="flex justify-content-center mb-2">
+    <!--Search Form-->
+    <app-search-products-form
+      (notifyParentToSearch)="search($event)"
+    ></app-search-products-form>
+    <!--End Search Form-->
+  </div>
 
-        <!--Search Form-->
-        <app-search-products-form (notifyParentToSearch)="search($event)"></app-search-products-form>
-        <!--End Search Form-->
+  <div>
+    @if(shouldDisplayProductByIdModal) {
+    <p-dialog
+      [(visible)]="shouldDisplayProductByIdModal"
+      [modal]="true"
+      [draggable]="false"
+      (onHide)="hideProductById()"
+      header="Detalhes do Produto"
+    >
+      <p>
+        <span class="font-bold">Descrição: </span>{{productById!.description}}
+      </p>
+      <p><span class="font-bold">Quantidade: </span>{{productById!.amount}}</p>
+      <p>
+        <span class="font-bold">Preço: </span>{{productById!.price.toFixed(2) |
+        currency}}
+      </p>
+    </p-dialog>
+    } @else { @for (product of products; track $index) {
+    <app-active-product-card
+      [product]="product"
+      [shouldDisplayActionButtons]="securityService.isSessionBelongsToAnAdmin()|| securityService.isSessionBelongsToAManager()"
+      (notifyParentToDisplayUpdateModal)="displayModal($index)"
+      (notifyParentToDelete)="delete($event)"
+    ></app-active-product-card>
 
-    </div>
+    <app-update-product-modal
+      [product]="product"
+      [isModalVisible]="updateModalsPerProduct[$index]"
+      (notifyParentToCloseModal)="closeModal()"
+      (notifyParentToUpdate)="update($event)"
+    ></app-update-product-modal>
+    } }
+  </div>
 
-    <div>
-        @for (product of products; track $index) {
-        <app-active-product-card [product]="product"
-            [shouldDisplayActionButtons]="securityService.isSessionBelongsToAnAdmin()|| securityService.isSessionBelongsToAManager()"
-            (notifyParentToDisplayUpdateModal)="displayModal($index)"
-            (notifyParentToDelete)="delete($event)"></app-active-product-card>
-
-        <app-update-product-modal [product]="product" [isModalVisible]="updateModalsPerProduct[$index]"
-            (notifyParentToCloseModal)="closeModal()"
-            (notifyParentToUpdate)="update($event)"></app-update-product-modal>
-        }
-    </div>
-
-    <!--Paginator-->
-    <app-paginator [currentPage]="currentPage" [totalOfPages]="totalOfPages"
-        (notifyParentToChangePage)="changePage($event)"></app-paginator>
-    <!--End Paginator-->
-
+  <!--Paginator-->
+  <app-paginator
+    [currentPage]="currentPage"
+    [totalOfPages]="totalOfPages"
+    (notifyParentToChangePage)="changePage($event)"
+  ></app-paginator>
+  <!--End Paginator-->
 </p-panel>
 <!--End Search Page-->

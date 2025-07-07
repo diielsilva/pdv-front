@@ -1,7 +1,16 @@
 <form [formGroup]="form">
-    <div class="flex justify-content-center">
-        <input pInputText formControlName="description" placeholder="Descrição...">
-        <p-button icon="pi pi-search" [rounded]="true" [disabled]="loadingHelper.isLoading() || form.invalid"
-            styleClass="ml-2 cursor-pointer" (onClick)="search()"></p-button>
-    </div>
+  <div class="flex justify-content-center">
+    <input
+      pInputText
+      formControlName="description"
+      placeholder="ID ou Descrição..."
+    />
+    <p-button
+      icon="pi pi-search"
+      [rounded]="true"
+      [disabled]="loadingHelper.isLoading() || form.invalid"
+      styleClass="ml-2 cursor-pointer"
+      (onClick)="search()"
+    ></p-button>
+  </div>
 </form>
